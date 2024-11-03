@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\BookingAdvanceController;
+use App\Http\Controllers\Admin\CustomerController;
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard.index');
@@ -18,6 +20,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::resource('roles', RoleController::class)->except(['show']);
         Route::resource('permissions', PermissionController::class)->except(['show']);
         Route::resource('users', UserController::class);
+        Route::resource('booking-advance', BookingAdvanceController::class);
+        Route::resource('customers', CustomerController::class);
     });
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
