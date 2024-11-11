@@ -109,6 +109,14 @@
                             </a>
                         </li>
                         @endpermission
+                        @permission('booking_advances.read')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.booking-advances.create') }}" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i>
+                                <p>{{ __('Booking Advances') }}</p>
+                            </a>
+                        </li>
+                        @endpermission
                         @permission('profile.read')
                         <li class="nav-item">
                             <a href="{{ route('profile.index') }}" class="nav-link">

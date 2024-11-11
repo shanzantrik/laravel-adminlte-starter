@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
@@ -97,21 +98,31 @@ class CustomerController extends Controller
         return view('admin.customers.create', compact('customer', 'roles', 'customerRoles'));
     }
 
-    public function store(StoreCustomerRequest $request): RedirectResponse
+    public function store(StoreCustomerRequest $request): JsonResponse
     {
         validate_permission('customers.create');
 
-        DB::transaction(function () use ($request) {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'phone_no' => 'required|string|max:10|unique:customers',
+                'vehicle_registration_no' => 'nullable|string|max:20|unique:customers'
+            ]);
+
             $customer = Customer::create($request->only('name', 'phone_no', 'vehicle_registration_no'));
 
-            if ($request->has('roles')) {
-                $customer->roles()->sync($request->post('roles'));
-            }
-        });
-
-        return redirect()
-            ->route('admin.customers.index')
-            ->with('success', 'Customer created successfully!');
+            return response()->json([
+                'success' => true,
+                'customer' => $customer
+            ], 200);  // Ensure 200 status for success
+        } catch (\Exception $e) {
+            // Log the exception and return an error response
+            \Log::error("Error in customer store: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while creating the customer.',
+            ], 500);  // Explicitly return a 500 status
+        }
     }
 
     public function show(Customer $customer): View
@@ -128,13 +139,15 @@ class CustomerController extends Controller
         return view('admin.customers.edit', compact('customer'));
     }
 
-    public function update(UpdateCustomerRequest $request, Customer $customer): RedirectResponse
+    public function update($request, Customer $customer): JsonResponse
     {
         validate_permission('customers.update');
 
-        DB::transaction(function () use ($request, $customer) {
-            $customer->update($request->only('name', 'phone_no', 'vehicle_registration_no'));
-        });
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone_no' => 'required|string|max:10|unique:customers',
+            'vehicle_registration_no' => 'nullable|string|max:20|unique:customers'
+        ]);
 
         return redirect()
             ->route('admin.customers.index')
@@ -149,5 +162,43 @@ class CustomerController extends Controller
         return redirect()
             ->route('admin.customers.index')
             ->with('success', 'Customer deleted successfully!');
+    }
+
+    public function search(Request $request)
+    {
+        try {
+            $query = $request->get('query');
+            Log::info('Customer search request received', ['query' => $query]);
+
+            if (empty($query)) {
+                return response()->json([
+                    'error' => 'Search query is required'
+                ], 400);
+            }
+
+            $customers = Customer::where(function ($q) use ($query) {
+                $q->where('phone_no', 'LIKE', "%{$query}%")
+                    ->orWhere('vehicle_registration_no', 'LIKE', "%{$query}%");
+            })
+                ->select(['id', 'name', 'phone_no', 'vehicle_registration_no'])
+                ->limit(10)
+                ->get();
+
+            Log::info('Customer search results', [
+                'query' => $query,
+                'count' => $customers->count()
+            ]);
+
+            return response()->json($customers);
+        } catch (\Exception $e) {
+            Log::error('Error in customer search', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'error' => 'An error occurred while searching for customers'
+            ], 500);
+        }
     }
 }

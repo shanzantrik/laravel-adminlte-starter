@@ -12,6 +12,10 @@ use App\Http\Controllers\Admin\CustomerController;
 Route::get('/', function () {
     return redirect()->route('admin.dashboard.index');
 });
+Route::get('/admin/customers/search', [CustomerController::class, 'search'])
+    ->name('customers.search')
+    ->middleware(['web', 'auth']);
+
 
 Route::group(['middleware' => ['auth']], function () {
 
@@ -20,13 +24,14 @@ Route::group(['middleware' => ['auth']], function () {
         Route::resource('roles', RoleController::class)->except(['show']);
         Route::resource('permissions', PermissionController::class)->except(['show']);
         Route::resource('users', UserController::class);
-        Route::resource('booking-advance', BookingAdvanceController::class);
+        Route::resource('booking-advances', BookingAdvanceController::class);
         Route::resource('customers', CustomerController::class);
     });
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/admin/customers/store', [CustomerController::class, 'store'])->name('admin.customers.store');
 });
 
 require __DIR__ . '/auth.php';

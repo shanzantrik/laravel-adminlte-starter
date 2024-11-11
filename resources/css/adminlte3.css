@@ -1126,6 +1126,8 @@ pre code {
     -ms-flex: 0 0 33.333333%;
     flex: 0 0 33.333333%;
     max-width: 33.333333%;
+    background-color: #c5d9ed;
+    padding: 20px;
   }
   .col-md-5 {
     -ms-flex: 0 0 41.666667%;
