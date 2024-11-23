@@ -28,7 +28,8 @@
     </div>
 
     <div class="form-group">
-      <input type="text" name="customer_name" id="customer_name" class="form-control" readonly>
+      <label for="customer_name">{{ __('Customer Name') }}</label>
+      <input type="text" id="customer_name" class="form-control" readonly>
     </div>
 
 
@@ -119,108 +120,155 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("total_amount").addEventListener("input", updatePaymentSummary);
+  document.addEventListener("DOMContentLoaded", function () {
+    // Ensure the `addPaymentRow` function is globally available
+    window.addPaymentRow = function (payment = {}) {
+        const container = document.getElementById('paymentsContainer');
+        const index = container.children.length;
 
-        window.addPaymentRow = function(payment = {}) {
-            const container = document.getElementById('paymentsContainer');
-            const index = container.children.length;
+        const paymentRow = document.createElement('div');
+        paymentRow.className = 'form-group row';
+        paymentRow.innerHTML = `
+            <div class="col-md-3">
+                <select name="payments[${index}][payment_by]" class="form-control payment-type"
+                    onchange="showPaymentFields(this, ${index})" required>
+                    <option value="">Select Payment Method</option>
+                    <option value="cash" ${payment.payment_by === "cash" ? "selected" : ""}>Cash</option>
+                    <option value="cheque" ${payment.payment_by === "cheque" ? "selected" : ""}>Cheque</option>
+                    <option value="bank_transfer" ${payment.payment_by === "bank_transfer" ? "selected" : ""}>Bank Transfer</option>
+                    <option value="card" ${payment.payment_by === "card" ? "selected" : ""}>Card Swipe</option>
+                    <option value="advance_adjustment" ${payment.payment_by === "advance_adjustment" ? "selected" : ""}>Advance Adjustment</option>
+                    <option value="discount" ${payment.payment_by === "discount" ? "selected" : ""}>Discount</option>
+                    <option value="credit_individual" ${payment.payment_by === "credit_individual" ? "selected" : ""}>Credit Individual</option>
+                    <option value="credit_institutional" ${payment.payment_by === "credit_institutional" ? "selected" : ""}>Credit Institutional</option>
+                    <option value="balance" ${payment.payment_by === "balance" ? "selected" : ""}>Balance</option>
+                </select>
+            </div>
+            <div id="paymentFields${index}" class="col-md-9"></div>
+        `;
+        container.appendChild(paymentRow);
 
-            const paymentRow = document.createElement('div');
-            paymentRow.className = 'form-group row';
-            paymentRow.innerHTML = `
-                <div class="col-md-3">
-                    <select name="payments[${index}][payment_by]" class="form-control payment-type" onchange="showPaymentFields(this, ${index})" required>
-                        <option value="">Select Payment Method</option>
-                        <option value="cash" ${payment.payment_by === "cash" ? "selected" : ""}>Cash</option>
-                        <option value="cheque" ${payment.payment_by === "cheque" ? "selected" : ""}>Cheque</option>
-                        <option value="bank_transfer" ${payment.payment_by === "bank_transfer" ? "selected" : ""}>Bank Transfer</option>
-                        <option value="card" ${payment.payment_by === "card" ? "selected" : ""}>Card Swipe</option>
-                        <option value="advance_adjustment" ${payment.payment_by === "advance_adjustment" ? "selected" : ""}>Advance Adjustment</option>
-                    </select>
-                </div>
-                <div id="paymentFields${index}" class="col-md-9"></div>
+        // Show specific fields based on payment method
+        window.showPaymentFields(paymentRow.querySelector(".payment-type"), index, payment);
+    };
+
+    // Ensure the `showPaymentFields` function is globally available
+    window.showPaymentFields = function (select, index, payment = {}) {
+        const paymentType = select.value;
+        const paymentFields = document.getElementById(`paymentFields${index}`);
+        paymentFields.innerHTML = ''; // Clear existing fields
+
+        const currentDate = new Date().toISOString().split('T')[0];
+        const commonFields = `
+            <input type="date" name="payments[${index}][payment_date]" class="form-control mt-2"
+            value="${payment.payment_date || currentDate}" required>
+            <input type="number" step="0.01" name="payments[${index}][amount]" placeholder="Amount"
+                class="form-control mt-2" value="${payment.amount || ''}" oninput="updatePaymentSummary()" required>
+        `;
+
+        if (paymentType === "cash") {
+            paymentFields.innerHTML += commonFields;
+        } else if (paymentType === "cheque") {
+            paymentFields.innerHTML += `
+                <input type="text" name="payments[${index}][reference_number]" placeholder="Cheque Number"
+                    class="form-control mt-2" value="${payment.reference_number || ''}" required>
+                <input type="text" name="payments[${index}][bank_name]" placeholder="Bank Name"
+                    class="form-control mt-2" value="${payment.bank_name || ''}" required>
+                ${commonFields}
             `;
-            container.appendChild(paymentRow);
-
-            // Show specific fields based on payment method
-            showPaymentFields(paymentRow.querySelector(".payment-type"), index, payment);
-        }
-
-        window.showPaymentFields = function(select, index, payment = {}) {
-            const paymentType = select.value;
-            const paymentFields = document.getElementById(`paymentFields${index}`);
-            paymentFields.innerHTML = ''; // Clear existing fields
-
-            const commonFields = `
-                <input type="date" name="payments[${index}][payment_date]" class="form-control mt-2" value="${payment.payment_date || ''}" required>
-                <input type="number" step="0.01" name="payments[${index}][amount]" placeholder="Amount" class="form-control mt-2" value="${payment.amount || ''}" oninput="updatePaymentSummary()" required>
+        } else if (paymentType === "bank_transfer") {
+            paymentFields.innerHTML += `
+                <input type="text" name="payments[${index}][reference_number]" placeholder="NEFT/IFSC REF No"
+                    class="form-control mt-2" value="${payment.reference_number || ''}" required>
+                <input type="text" name="payments[${index}][bank_name]" placeholder="Bank Name"
+                    class="form-control mt-2" value="${payment.bank_name || ''}" required>
+                ${commonFields}
             `;
-
-            if (paymentType === "cash") {
-                paymentFields.innerHTML += commonFields;
-            } else if (paymentType === "cheque") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][reference_number]" placeholder="Cheque Number" class="form-control mt-2" value="${payment.cheque_number || ''}" required>
-                    <input type="text" name="payments[${index}][bank_name]" placeholder="Bank Name" class="form-control mt-2" value="${payment.bank_name || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "bank_transfer") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][reference_number]" placeholder="NEFT/IFSC REF No" class="form-control mt-2" value="${payment.neft_ref_no || ''}" required>
-                    <input type="text" name="payments[${index}][bank_name]" placeholder="Bank Name" class="form-control mt-2" value="${payment.bank_name || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "card") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][reference_number]" placeholder="Card Transaction ID" class="form-control mt-2" value="${payment.card_transaction_id || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "advance_adjustment") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][reference_number]" placeholder="Adjustment Reference" class="form-control mt-2" value="${payment.advance_adjustment_ref || ''}" required>
-                    ${commonFields}
-                `;
-            }
-
-            updatePaymentSummary();
+        } else if (paymentType === "card") {
+            paymentFields.innerHTML += `
+                <input type="text" name="payments[${index}][reference_number]" placeholder="Card Transaction ID"
+                    class="form-control mt-2" value="${payment.reference_number || ''}" required>
+                ${commonFields}
+            `;
+        } else if (paymentType === "advance_adjustment") {
+            paymentFields.innerHTML += `
+                <input type="text" name="payments[${index}][reference_number]" placeholder="GAPL M.R.No."
+                    class="form-control mt-2" value="${payment.reference_number || ''}" required>
+                ${commonFields}
+            `;
+        } else if (paymentType === "discount") {
+            paymentFields.innerHTML += `
+                <input type="text" name="payments[${index}][approved_by]" placeholder="Approved By"
+                    class="form-control mt-2" value="${payment.approved_by || ''}" required>
+                <input type="text" name="payments[${index}][discount_note_no]" placeholder="Discount Note No."
+                    class="form-control mt-2" value="${payment.discount_note_no || ''}" required>
+                ${commonFields}
+            `;
+        } else if (paymentType === "credit_individual") {
+            paymentFields.innerHTML += `
+                <input type="text" name="payments[${index}][approved_by]" placeholder="Approved By"
+                    class="form-control mt-2" value="${payment.approved_by || ''}" required>
+                <input type="text" name="payments[${index}][approved_note_no]" placeholder="Approved Note No."
+                    class="form-control mt-2" value="${payment.approved_note_no || ''}" required>
+                ${commonFields}
+            `;
+        } else if (paymentType === "credit_institutional") {
+            paymentFields.innerHTML += `
+                <input type="text" name="payments[${index}][approved_by]" placeholder="Approved By"
+                    class="form-control mt-2" value="${payment.approved_by || ''}" required>
+                <input type="text" name="payments[${index}][institution_name]" placeholder="Institution Name"
+                    class="form-control mt-2" value="${payment.institution_name || ''}" required>
+                <input type="text" name="payments[${index}][credit_instrument]" placeholder="Credit Instrument"
+                    class="form-control mt-2" value="${payment.credit_instrument || ''}" required>
+                <input type="text" name="payments[${index}][reference_number]" placeholder="Credit Instrument Reference No."
+                    class="form-control mt-2" value="${payment.reference_number || ''}" required>
+                ${commonFields}
+            `;
+        } else if (paymentType === "balance") {
+            paymentFields.innerHTML += `
+                ${commonFields}
+            `;
         }
 
-        function updatePaymentSummary() {
-            const totalAmount = parseFloat(document.getElementById("total_amount").value) || 0;
-            const paymentAmounts = document.querySelectorAll("[name^='payments'][name$='[amount]']");
-            let amountPaid = 0;
-            const paymentDetailsContainer = document.getElementById("individualPayments");
-            paymentDetailsContainer.innerHTML = ""; // Clear current displayed payments
+        // Update payment summary whenever fields change
+        updatePaymentSummary();
+    };
+document.getElementById("total_amount").addEventListener("input", updatePaymentSummary);
+    // Function to update payment summary dynamically
+    function updatePaymentSummary() {
+        const totalAmount = parseFloat(document.getElementById("total_amount").value) || 0;
+        const paymentAmounts = document.querySelectorAll("[name^='payments'][name$='[amount]']");
+        let amountPaid = 0;
+        const paymentDetailsContainer = document.getElementById("individualPayments");
+        paymentDetailsContainer.innerHTML = ""; // Clear current displayed payments
 
-            paymentAmounts.forEach(input => {
-                const amount = parseFloat(input.value) || 0;
-                amountPaid += amount;
+        paymentAmounts.forEach(input => {
+            const amount = parseFloat(input.value) || 0;
+            amountPaid += amount;
 
-                const paymentRow = document.createElement("p");
-                const paymentType = input.closest(".row").querySelector("select").value;
-                paymentRow.innerText = `${paymentType.toUpperCase()}: ${amount.toFixed(2)}`;
-                paymentDetailsContainer.appendChild(paymentRow);
-            });
+            const paymentRow = document.createElement("p");
+            const paymentType = input.closest(".row").querySelector("select").value;
+            paymentRow.innerText = `${paymentType.toUpperCase()}: ${amount.toFixed(2)}`;
+            paymentDetailsContainer.appendChild(paymentRow);
+        });
 
-            const balance = totalAmount - amountPaid;
+        const balance = totalAmount - amountPaid;
 
-            document.getElementById("totalAmountDisplay").innerText = totalAmount.toFixed(2);
-            document.getElementById("amountPaidDisplay").innerText = amountPaid.toFixed(2);
-            document.getElementById("balanceDisplay").innerText = balance.toFixed(2);
-        }
+        document.getElementById("totalAmountDisplay").innerText = totalAmount.toFixed(2);
+        document.getElementById("amountPaidDisplay").innerText = amountPaid.toFixed(2);
+        document.getElementById("balanceDisplay").innerText = balance.toFixed(2);
+    }
 
-        // Prepopulate payments if in edit mode
-        @if(isset($bookingAdvance) && $bookingAdvance->payments)
-            @foreach($bookingAdvance->payments as $payment)
-                addPaymentRow(@json($payment));
-            @endforeach
-        @endif
-    });
-{{--
+    // Prepopulate payments if in edit mode
+    @if (isset($bookingAdvance) && $bookingAdvance->payments)
+        @foreach ($bookingAdvance->payments as $payment)
+            addPaymentRow(@json($payment));
+        @endforeach
+    @endif
+});
 </script>
+
 <script>
-  --}}
   document.addEventListener("DOMContentLoaded", function () {
     // Cache DOM elements
     const elements = {
@@ -274,8 +322,8 @@
         const query = elements.searchInput.value.trim();
         console.log('Handling search for query:', query);
 
-        if (query.length < config.minSearchLength) {
-            showMessage(`Please enter at least ${config.minSearchLength} characters to search.`, "warning");
+        if (query.length < 3) {
+            alert("Please enter at least 3 characters to search.");
             return;
         }
 
@@ -287,12 +335,12 @@
             updateCustomerDropdown(data);
         } catch (error) {
             console.error("Detailed error:", error);
-            showMessage(`Error: ${error.message}`, "error");
+            showMessage(Error: ${error.message}, "error");
         }
     }
 
     async function fetchCustomers(query) {
-        const searchUrl = `${config.searchEndpoint}?query=${encodeURIComponent(query)}`;
+        const searchUrl = ${config.searchEndpoint}?query=${encodeURIComponent(query)};
         console.log('Fetching from URL:', searchUrl);
 
         try {
@@ -312,7 +360,7 @@
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Response error text:', errorText);
-                throw new Error(`Server responded with status: ${response.status}`);
+                throw new Error(Server responded with status: ${response.status});
             }
 
             const contentType = response.headers.get("content-type");
@@ -353,7 +401,7 @@
             elements.customerSelect.appendChild(option);
         });
 
-        showMessage(`Found ${customers.length} customers`, "success");
+        showMessage(Found ${customers.length} customers, "success");
     }
     function handleCustomerSelection(selectedId) {
         console.log('Selected customer ID:', selectedId);
@@ -382,11 +430,11 @@
     }
 
     function formatCustomerOption(customer) {
-        return `${customer.name || 'N/A'} - ${customer.phone_no || 'N/A'} - ${customer.vehicle_registration_no || 'N/A'}`;
+        return ${customer.name || 'N/A'} - ${customer.phone_no || 'N/A'} - ${customer.vehicle_registration_no || 'N/A'};
     }
 
     function showMessage(message, type = 'info') {
-        console.log(`${type}: ${message}`);
+        console.log(${type}: ${message});
 
         // You can replace this with a more sophisticated notification system
         if (type === 'error') {

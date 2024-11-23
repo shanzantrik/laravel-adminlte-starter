@@ -14,10 +14,10 @@
 
             @include('admin.booking-advances._form')
 
-            <div class="form-group">
+            {{-- <div class="form-group">
                 <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
                 <a href="{{ route('admin.booking-advances.index') }}" class="btn btn-default">{{ __('Cancel') }}</a>
-            </div>
+            </div> --}}
         </form>
     </div>
 </div>
