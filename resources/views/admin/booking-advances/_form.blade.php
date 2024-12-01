@@ -85,6 +85,14 @@
                 <!-- Individual payment methods and amounts will be displayed here dynamically -->
             </div>
         </div>
+        <div class="text-left">
+            @if(isset($bookingAdvance) && $bookingAdvance->id)
+            <a href="{{ route('admin.booking-advances.receipt', $bookingAdvance) }}" class="btn btn-info"
+                target="_blank">
+                <i class="fas fa-print"></i> Generate Receipt
+            </a>
+            @endif
+        </div>
     </div>
 
 </div>

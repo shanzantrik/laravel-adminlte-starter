@@ -7,6 +7,7 @@ use App\Models\BookingAdvance;
 use App\Models\Payment;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use NumberFormatter;
 
 class BookingAdvanceController extends Controller
 {
@@ -199,5 +200,16 @@ class BookingAdvanceController extends Controller
 
         $bookingAdvance->delete();
         return redirect()->route('admin.booking-advances.index')->with('success', 'Booking Advance deleted successfully!');
+    }
+
+    public function receipt(BookingAdvance $bookingAdvance)
+    {
+        $bookingAdvance->load(['customer', 'payments']);
+
+        // Convert amount to words
+        $f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
+        $amountInWords = $f->format($bookingAdvance->amount_paid);
+
+        return view('admin.booking-advances.receipt', compact('bookingAdvance', 'amountInWords'));
     }
 }

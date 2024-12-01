@@ -26,6 +26,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::resource('users', UserController::class);
         Route::resource('booking-advances', BookingAdvanceController::class);
         Route::resource('customers', CustomerController::class);
+        Route::get('booking-advances/{bookingAdvance}/receipt', [BookingAdvanceController::class, 'receipt'])
+            ->name('booking-advances.receipt');
     });
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');

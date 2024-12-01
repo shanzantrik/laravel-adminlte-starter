@@ -49,6 +49,10 @@
             <td>{{ $advance->customer->name ?? 'N/A' }}</td>
             <td>
               <a href="{{ route('admin.booking-advances.edit', $advance) }}" class="btn btn-sm btn-primary">Edit</a>
+              <a href="{{ route('admin.booking-advances.receipt', $advance) }}" class="btn btn-sm btn-info"
+                target="_blank">
+                <i class="fas fa-print"></i> Receipt
+              </a>
               <form action="{{ route('admin.booking-advances.destroy', $advance) }}" method="POST"
                 style="display: inline-block;">
                 @csrf
