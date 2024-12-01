@@ -55,21 +55,45 @@ class BookingAdvanceController extends Controller
                 'payment_by' => $payment['payment_by'],
                 'payment_date' => $payment['payment_date'],
                 'amount' => $payment['amount'],
-                'reference_number' => $payment['reference_number'] ?? $payment['neft_ref_no'] ?? $payment['card_transaction_id'] ?? $payment['advance_adjustment_ref'] ?? null,
-                'bank_name' => $payment['bank_name'] ?? null
+                'reference_number' => null,
+                'bank_name' => null,
+                'approved_by' => null,
+                'discount_note_no' => null,
+                'approved_note_no' => null,
+                'institution_name' => null,
+                'credit_instrument' => null,
             ];
 
             // Add additional fields based on the payment method
-            if ($payment['payment_by'] === 'cheque') {
-                $paymentData['reference_number'] = $payment['reference_number'] ?? null;  // Ensure it's passed from the form
-                $paymentData['bank_name'] = $payment['bank_name'] ?? null;
-            } elseif ($payment['payment_by'] === 'bank_transfer') {
-                $paymentData['reference_number'] = $payment['neft_ref_no'] ?? null;
-                $paymentData['bank_name'] = $payment['bank_name'] ?? null;
-            } elseif ($payment['payment_by'] === 'card') {
-                $paymentData['reference_number'] = $payment['card_transaction_id'] ?? null;
-            } elseif ($payment['payment_by'] === 'advance_adjustment') {
-                $paymentData['reference_number'] = $payment['advance_adjustment_ref'] ?? null;
+            switch ($payment['payment_by']) {
+                case 'cheque':
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    $paymentData['bank_name'] = $payment['bank_name'] ?? null;
+                    break;
+                case 'bank_transfer':
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    $paymentData['bank_name'] = $payment['bank_name'] ?? null;
+                    break;
+                case 'card':
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    break;
+                case 'advance_adjustment':
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    break;
+                case 'discount':
+                    $paymentData['approved_by'] = $payment['approved_by'] ?? null;
+                    $paymentData['discount_note_no'] = $payment['discount_note_no'] ?? null;
+                    break;
+                case 'credit_individual':
+                    $paymentData['approved_by'] = $payment['approved_by'] ?? null;
+                    $paymentData['approved_note_no'] = $payment['approved_note_no'] ?? null;
+                    break;
+                case 'credit_institutional':
+                    $paymentData['approved_by'] = $payment['approved_by'] ?? null;
+                    $paymentData['institution_name'] = $payment['institution_name'] ?? null;
+                    $paymentData['credit_instrument'] = $payment['credit_instrument'] ?? null;
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    break;
             }
             Payment::create($paymentData);
             $amountPaid += $payment['amount'];
@@ -90,8 +114,9 @@ class BookingAdvanceController extends Controller
         validate_permission('booking_advances.update');
 
         $customers = Customer::all();
-        $bookingAdvance->load('payments');
-        //dd($bookingAdvance->payments->toArray());
+        $bookingAdvance->load(['payments', 'customer']);
+
+
         return view('admin.booking-advances.edit', compact('bookingAdvance', 'customers'));
     }
 
@@ -113,21 +138,45 @@ class BookingAdvanceController extends Controller
                 'payment_by' => $payment['payment_by'],
                 'payment_date' => $payment['payment_date'],
                 'amount' => $payment['amount'],
-                'reference_number' => $payment['reference_number'] ?? $payment['neft_ref_no'] ?? $payment['card_transaction_id'] ?? $payment['advance_adjustment_ref'] ?? null,
-                'bank_name' => $payment['bank_name'] ?? null
+                'reference_number' => null,
+                'bank_name' => null,
+                'approved_by' => null,
+                'discount_note_no' => null,
+                'approved_note_no' => null,
+                'institution_name' => null,
+                'credit_instrument' => null,
             ];
 
             // Add additional fields based on the payment method
-            if ($payment['payment_by'] === 'cheque') {
-                $paymentData['reference_number'] = $payment['reference_number'] ?? null;
-                $paymentData['bank_name'] = $payment['bank_name'] ?? null;
-            } elseif ($payment['payment_by'] === 'bank_transfer') {
-                $paymentData['reference_number'] = $payment['neft_ref_no'] ?? null;
-                $paymentData['bank_name'] = $payment['bank_name'] ?? null;
-            } elseif ($payment['payment_by'] === 'card') {
-                $paymentData['reference_number'] = $payment['card_transaction_id'] ?? null;
-            } elseif ($payment['payment_by'] === 'advance_adjustment') {
-                $paymentData['reference_number'] = $payment['advance_adjustment_ref'] ?? null;
+            switch ($payment['payment_by']) {
+                case 'cheque':
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    $paymentData['bank_name'] = $payment['bank_name'] ?? null;
+                    break;
+                case 'bank_transfer':
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    $paymentData['bank_name'] = $payment['bank_name'] ?? null;
+                    break;
+                case 'card':
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    break;
+                case 'advance_adjustment':
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    break;
+                case 'discount':
+                    $paymentData['approved_by'] = $payment['approved_by'] ?? null;
+                    $paymentData['discount_note_no'] = $payment['discount_note_no'] ?? null;
+                    break;
+                case 'credit_individual':
+                    $paymentData['approved_by'] = $payment['approved_by'] ?? null;
+                    $paymentData['approved_note_no'] = $payment['approved_note_no'] ?? null;
+                    break;
+                case 'credit_institutional':
+                    $paymentData['approved_by'] = $payment['approved_by'] ?? null;
+                    $paymentData['institution_name'] = $payment['institution_name'] ?? null;
+                    $paymentData['credit_instrument'] = $payment['credit_instrument'] ?? null;
+                    $paymentData['reference_number'] = $payment['reference_number'] ?? null;
+                    break;
             }
             echo "Payment Data After Processing: ";
 
