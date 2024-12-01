@@ -71,11 +71,11 @@
     </div>
 
     <div class="content">
-      Received with thanks from {{ $bookingAdvance->customer->name }} an amount of Rs. {{
+      Received with thanks from {{ $bookingAdvance->customer->name }} an amount of ₹{{
       number_format($bookingAdvance->amount_paid, 2) }}
-      (in words {{ ucwords($amountInWords) }} only) as Advance against New Vehicle vide
+      (in words Rupees {{ ucwords($amountInWords) }} only) as Advance against New Vehicle vide
       @foreach($bookingAdvance->payments as $payment)
-      {{ $payment->payment_by }}: {{ number_format($payment->amount, 2) }}
+      {{ $payment->payment_by }}: ₹{{ number_format($payment->amount, 2) }}
       @if(!$loop->last)//@endif
       @endforeach
     </div>

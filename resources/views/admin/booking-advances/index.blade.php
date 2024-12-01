@@ -43,9 +43,9 @@
           @forelse ($bookingAdvances as $advance)
           <tr>
             <td>{{ $advance->order_booking_number }}</td>
-            <td>{{ $advance->total_amount }}</td>
-            <td>{{ $advance->amount_paid }}</td>
-            <td>{{ $advance->balance }}</td>
+            <td>₹{{ number_format($advance->total_amount, 2) }}</td>
+            <td>₹{{ number_format($advance->amount_paid, 2) }}</td>
+            <td>₹{{ number_format($advance->balance, 2) }}</td>
             <td>{{ $advance->customer->name ?? 'N/A' }}</td>
             <td>
               <a href="{{ route('admin.booking-advances.edit', $advance) }}" class="btn btn-sm btn-primary">Edit</a>

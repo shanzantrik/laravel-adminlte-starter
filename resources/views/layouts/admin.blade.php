@@ -77,56 +77,70 @@
                             </a>
                         </li>
                         @endpermission
+
+                        <!-- Administrative Section -->
+                        <li class="nav-header">ADMINISTRATIVE</li>
+
                         @permission('roles.read')
                         <li class="nav-item">
                             <a href="{{ route('admin.roles.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-shield-alt"></i>
+                                <i class="nav-icon fas fa-user-shield"></i>
                                 <p>{{ __('Roles') }}</p>
                             </a>
                         </li>
                         @endpermission
+
                         @permission('permissions.read')
                         <li class="nav-item">
                             <a href="{{ route('admin.permissions.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-user-shield"></i>
+                                <i class="nav-icon fas fa-key"></i>
                                 <p>{{ __('Permissions') }}</p>
                             </a>
                         </li>
                         @endpermission
+
                         @permission('users.read')
                         <li class="nav-item">
                             <a href="{{ route('admin.users.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i>
+                                <i class="nav-icon fas fa-users-cog"></i>
                                 <p>{{ __('Users') }}</p>
                             </a>
                         </li>
                         @endpermission
-                        @permission('customers.read')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.customers.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i>
-                                <p>{{ __('Customers') }}</p>
-                            </a>
-                        </li>
-                        @endpermission
-                        @permission('booking_advances.read')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.booking-advances.create') }}" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i>
-                                <p>{{ __('Booking Advances') }}</p>
-                            </a>
-                        </li>
-                        @endpermission
+
                         @permission('profile.read')
                         <li class="nav-item">
                             <a href="{{ route('profile.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-user"></i>
+                                <i class="nav-icon fas fa-user-circle"></i>
                                 <p>{{ __('My Profile') }}</p>
                             </a>
                         </li>
                         @endpermission
+
+                        <!-- Financial Actions Section -->
+                        <li class="nav-header">FINANCIAL ACTIONS</li>
+
+                        @permission('customers.read')
                         <li class="nav-item">
-                            <a href="javascript:void(0);" id="logout-button" class="nav-link">
+                            <a href="{{ route('admin.customers.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-user-friends"></i>
+                                <p>{{ __('Customers') }}</p>
+                            </a>
+                        </li>
+                        @endpermission
+
+                        @permission('booking_advances.read')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.booking-advances.create') }}" class="nav-link">
+                                <i class="nav-icon fas fa-receipt"></i>
+                                <p>{{ __('Booking Advances') }}</p>
+                            </a>
+                        </li>
+                        @endpermission
+
+                        <!-- Logout at the bottom -->
+                        <li class="nav-item mt-3">
+                            <a href="javascript:void(0);" id="logout-button" class="nav-link text-danger">
                                 <i class="nav-icon fas fa-sign-out-alt"></i>
                                 <p>{{ __('Logout') }}</p>
                             </a>

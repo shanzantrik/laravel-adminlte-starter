@@ -1,3 +1,17 @@
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="float-right">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item">
+                    <a href="{{ route('admin.booking-advances.index') }}" class="text-decoration-none">
+                        <i class="fas fa-list"></i> View All Booking Advances
+                    </a>
+                </li>
+            </ol>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-8">
         <!-- Customer and Booking Details -->
@@ -77,9 +91,9 @@
     <div class="col-md-4">
         <h4>Complete Payment Details</h4>
         <div id="paymentDetails">
-            <p>Total Amount: <span id="totalAmountDisplay">0.00</span></p>
-            <p>Total Amount Paid: <span id="amountPaidDisplay">0.00</span></p>
-            <p>Balance: <span id="balanceDisplay">0.00</span></p>
+            <p>Total Amount: ₹<span id="totalAmountDisplay">0.00</span></p>
+            <p>Total Amount Paid: ₹<span id="amountPaidDisplay">0.00</span></p>
+            <p>Balance: ₹<span id="balanceDisplay">0.00</span></p>
             <h4>Individual Payments Details</h4>
             <div id="individualPayments">
                 <!-- Individual payment methods and amounts will be displayed here dynamically -->
@@ -113,7 +127,7 @@
 
                 const paymentRow = document.createElement("p");
                 const paymentType = input.closest(".row").querySelector("select").value;
-                paymentRow.innerText = `${paymentType.toUpperCase()}: ${amount.toFixed(2)}`;
+                paymentRow.innerText = `${paymentType.toUpperCase()}: ₹${amount.toFixed(2)}`;
                 paymentDetailsContainer.appendChild(paymentRow);
             });
 
