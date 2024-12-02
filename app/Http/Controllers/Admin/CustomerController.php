@@ -117,7 +117,7 @@ class CustomerController extends Controller
             ], 200);  // Ensure 200 status for success
         } catch (\Exception $e) {
             // Log the exception and return an error response
-            \Log::error("Error in customer store: " . $e->getMessage());
+            Log::error("Error in customer store: " . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while creating the customer.',
@@ -139,7 +139,7 @@ class CustomerController extends Controller
         return view('admin.customers.edit', compact('customer'));
     }
 
-    public function update($request, Customer $customer): JsonResponse
+    public function update($request, Customer $customer)
     {
         validate_permission('customers.update');
 
