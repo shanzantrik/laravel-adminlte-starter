@@ -66,80 +66,254 @@
             </a>
 
             <div class="sidebar">
+                <!-- Sidebar user panel -->
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="{{ asset('images/default_avatar.jpg') }}" class="img-circle elevation-2"
+                            alt="User Image">
+                    </div>
+                    <div class="info">
+                        <a href="{{ route('profile.index') }}" class="d-block">{{ auth()->user()->name }}</a>
+                    </div>
+                </div>
+
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                         data-accordion="false">
                         @permission('dashboard.read')
                         <li class="nav-item">
-                            <a href="{{ route('admin.dashboard.index') }}" class="nav-link">
+                            <a href="{{ route('admin.dashboard.index') }}"
+                                class="nav-link {{ Request::routeIs('admin.dashboard.index') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>{{ __('Dashboard') }}</p>
                             </a>
                         </li>
                         @endpermission
 
-                        <!-- Administrative Section -->
-                        <li class="nav-header">ADMINISTRATIVE</li>
+                        <!-- Administration Dropdown -->
+                        <li
+                            class="nav-item has-treeview {{ Request::is('admin/roles*') || Request::is('admin/permissions*') || Request::is('admin/users*') ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cogs"></i>
+                                <p>
+                                    {{ __('Administration') }}
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @permission('roles.read')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.roles.index') }}"
+                                        class="nav-link {{ Request::is('admin/roles*') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>{{ __('Roles') }}</p>
+                                    </a>
+                                </li>
+                                @endpermission
 
-                        @permission('roles.read')
+                                @permission('permissions.read')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.permissions.index') }}"
+                                        class="nav-link {{ Request::is('admin/permissions*') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>{{ __('Permissions') }}</p>
+                                    </a>
+                                </li>
+                                @endpermission
+
+                                @permission('users.read')
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.users.index') }}"
+                                        class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>{{ __('Users') }}</p>
+                                    </a>
+                                </li>
+                                @endpermission
+                            </ul>
+                        </li>
+
+                        <!-- Receipt Dropdown -->
+                        <li
+                            class="nav-item has-treeview {{ Request::is('admin/customers*') || Request::is('admin/booking-advances*') ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-file-invoice"></i>
+                                <p>
+                                    {{ __('Receipt') }}
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li
+                                    class="nav-item has-treeview {{ Request::is('admin/customers*') || Request::is('admin/booking-advances*') ? 'menu-open' : '' }}">
+                                    <a href="#" class="nav-link active">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            {{ __('Sales') }}
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @permission('customers.read')
+                                        <li class="nav-item">
+                                            <a href="{{ route('admin.customers.index') }}"
+                                                class="nav-link {{ Request::is('admin/customers*') ? 'active' : '' }}">
+                                                <i class="far fa-user-circle nav-icon"></i>
+                                                <p>{{ __('Customers') }}</p>
+                                            </a>
+                                        </li>
+                                        @endpermission
+
+                                        @permission('booking_advances.read')
+                                        <li class="nav-item">
+                                            <a href="{{ route('admin.booking-advances.create') }}"
+                                                class="nav-link {{ Request::is('admin/booking-advances*') ? 'active' : '' }}">
+                                                <i class="far fa-credit-card nav-icon"></i>
+                                                <p>{{ __('Booking Advance') }}</p>
+                                            </a>
+                                        </li>
+                                        @endpermission
+
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-car  nav-icon"></i>
+                                                <p>{{ __('New Vehicle Sales') }}</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-file nav-icon"></i>
+                                                <p>{{ __('VAS Invoice') }}</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <!-- Services Dropdown -->
+                                <li class="nav-item has-treeview">
+                                    <a href="#" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            {{ __('Services') }}
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-tools nav-icon"></i>
+                                                <p>{{ __('Job Advance') }}</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-file-invoice-dollar nav-icon"></i>
+                                                <p>{{ __('Service Bill') }}</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-cash-register nav-icon"></i>
+                                                <p>{{ __('Counter Sales') }}</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <!-- Used Car Dropdown -->
+                                <li class="nav-item has-treeview">
+                                    <a href="#" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            {{ __('Used Cars') }}
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-tools nav-icon"></i>
+                                                <p>{{ __('Advance') }}</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-car nav-icon"></i>
+                                                <p>{{ __('Used Car Sales') }}</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <!-- Insurance Dropdown -->
+                                <li class="nav-item has-treeview">
+                                    <a href="#" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            {{ __('Insurance') }}
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-tools nav-icon"></i>
+                                                <p>{{ __('Advance') }}</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-file-invoice-dollar nav-icon"></i>
+                                                <p>{{ __('Policy Issued') }}</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>{{ __('Extended Warranty') }}</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>{{ __('Credit Recovery') }}</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Payments -->
                         <li class="nav-item">
-                            <a href="{{ route('admin.roles.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-user-shield"></i>
-                                <p>{{ __('Roles') }}</p>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-money-bill-wave"></i>
+                                <p>{{ __('Payments') }}</p>
                             </a>
                         </li>
-                        @endpermission
 
-                        @permission('permissions.read')
+                        <!-- Transfers -->
                         <li class="nav-item">
-                            <a href="{{ route('admin.permissions.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-key"></i>
-                                <p>{{ __('Permissions') }}</p>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-exchange-alt"></i>
+                                <p>{{ __('Transfers') }}</p>
                             </a>
                         </li>
-                        @endpermission
 
-                        @permission('users.read')
+                        <!-- Reports -->
                         <li class="nav-item">
-                            <a href="{{ route('admin.users.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-users-cog"></i>
-                                <p>{{ __('Users') }}</p>
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-chart-bar"></i>
+                                <p>{{ __('Reports') }}</p>
                             </a>
                         </li>
-                        @endpermission
+                    </ul>
+                </nav>
 
-                        @permission('profile.read')
+                <!-- Bottom Navigation -->
+                <nav class="mt-auto">
+                    <ul class="nav nav-pills nav-sidebar flex-column">
+
+                        <!-- Logout -->
                         <li class="nav-item">
-                            <a href="{{ route('profile.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-user-circle"></i>
-                                <p>{{ __('My Profile') }}</p>
-                            </a>
-                        </li>
-                        @endpermission
-
-                        <!-- Financial Actions Section -->
-                        <li class="nav-header">FINANCIAL ACTIONS</li>
-
-                        @permission('customers.read')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.customers.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-user-friends"></i>
-                                <p>{{ __('Customers') }}</p>
-                            </a>
-                        </li>
-                        @endpermission
-
-                        @permission('booking_advances.read')
-                        <li class="nav-item">
-                            <a href="{{ route('admin.booking-advances.create') }}" class="nav-link">
-                                <i class="nav-icon fas fa-receipt"></i>
-                                <p>{{ __('Booking Advances') }}</p>
-                            </a>
-                        </li>
-                        @endpermission
-
-                        <!-- Logout at the bottom -->
-                        <li class="nav-item mt-3">
                             <a href="javascript:void(0);" id="logout-button" class="nav-link text-danger">
                                 <i class="nav-icon fas fa-sign-out-alt"></i>
                                 <p>{{ __('Logout') }}</p>
