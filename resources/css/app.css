@@ -1,1 +1,6 @@
 @import './adminlte3.css';
+
+  .col-md-4 {
+    background-color: #a11c2d !important;
+    color: #fff !important;
+  }
