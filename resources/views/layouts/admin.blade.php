@@ -10,6 +10,9 @@
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     @vite(['resources/css/app.css'])
     @stack('styles')
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -175,7 +178,8 @@
                                         @endpermission
 
                                         <li class="nav-item">
-                                            <a href="#" class="nav-link">
+                                            <a href="{{ route('admin.new-vehicle-sales.create') }}"
+                                                class="nav-link {{ Request::is('admin/new-vehicle-sales*') ? 'active' : '' }}">
                                                 <i class="fa fa-car  nav-icon"></i>
                                                 <p>{{ __('New Vehicle Sales') }}</p>
                                             </a>
@@ -349,6 +353,12 @@
 
     @vite(['resources/js/app.js'])
     @stack('scripts')
+
+    <!-- Essential Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 </body>
 

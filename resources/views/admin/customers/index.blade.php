@@ -27,8 +27,6 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <!-- Phone number search input -->
-          <input type="text" id="phoneSearch" class="form-control mb-3" placeholder="Search by Phone No.">
           <table id="datatables" data-route="{{ route('admin.customers.index') }}"
             data-configs="{{ json_encode($tableConfigs) }}" class="table table-bordered table-sm">
             <thead>
@@ -56,30 +54,42 @@
 @section('scripts')
 <script>
   $(document).ready(function() {
-      // Initialize DataTable with custom search functionality
-      const table = $('#datatables').DataTable({
-          processing: true,
-          serverSide: true,
-          ajax: {
-              url: $('#datatables').data('route'),
-              data: function (d) {
-                  // Include custom phone number search in AJAX request
-                  d.phone_no = $('#phoneSearch').val();
-              },
-              type: 'GET'
-          },
-          columns: [
-              @foreach ($tableConfigs as $config)
-                  { data: '{{ $config["data"] }}', name: '{{ $config["data"] }}' },
-              @endforeach
-          ],
-          order: [[0, 'asc']]
-      });
-
-      // Redraw the table whenever the phone search input changes
-      $('#phoneSearch').on('keyup', function() {
-          table.draw();
-      });
-  });
+    $('#customers-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('admin.customers.index') }}",
+            type: 'GET',
+            error: function(xhr, error, thrown) {
+                console.log('DataTables error:', error);
+            }
+        },
+        columns: [
+            { data: 'name', name: 'name' },
+            { data: 'phone_no', name: 'phone_no' },
+            { data: 'vehicle_registration_no', name: 'vehicle_registration_no' },
+            { data: 'created_at', name: 'created_at' },
+            { data: 'actions', name: 'actions', orderable: false, searchable: false }
+        ],
+        order: [[3, 'desc']], // Order by created_at by default
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+        responsive: true,
+        stateSave: true,
+        language: {
+            processing: '<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>',
+            lengthMenu: '_MENU_ records per page',
+            zeroRecords: 'No matching records found',
+            info: 'Showing _START_ to _END_ of _TOTAL_ records',
+            infoEmpty: 'No records available',
+            infoFiltered: '(filtered from _MAX_ total records)',
+            paginate: {
+                first: 'First',
+                last: 'Last',
+                next: 'Next',
+                previous: 'Previous'
+            }
+    });
+});
 </script>
 @endsection

@@ -17,6 +17,7 @@ class Customer extends Model
         'phone_no',
         'vehicle_registration_no',
     ];
+    protected $dates = ['created_at', 'updated_at'];
     public function bookingAdvances()
     {
         return $this->hasMany(BookingAdvance::class);
