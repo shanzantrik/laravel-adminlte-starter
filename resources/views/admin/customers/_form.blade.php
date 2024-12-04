@@ -17,7 +17,7 @@
 </div>
 
 <div class="form-group">
-  <label for="vehicle_registration_no">{{ __('Vehicle Registration No') }}</label>
+  <label for="vehicle_registration_no">{{ __('Vehicle Registration No*') }}</label>
   <input type="text" name="vehicle_registration_no"
     class="form-control @error('vehicle_registration_no') is-invalid @enderror" id="vehicle_registration_no"
     placeholder="Enter vehicle registration number"

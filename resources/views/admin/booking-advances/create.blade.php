@@ -12,12 +12,35 @@
       @csrf
 
       @include('admin.booking-advances._form')
-
-      {{-- <div class="form-group">
-        <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
-        <a href="{{ route('admin.booking-advances.index') }}" class="btn btn-default">{{ __('Cancel') }}</a>
-      </div> --}}
+      <button type="submit" class="btn btn-info" id="saveGenerateButton" name="action" value="save_generate_receipt"
+        disabled>
+        {{ isset($bookingAdvance) ? 'Update and Generate Receipt' : 'Save and Generate Receipt' }}
+      </button>
     </form>
   </div>
 </div>
+<script>
+  document.getElementById('booking-form').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent default form submission
+    const form = event.target;
+
+    fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.open(data.receipt_url, '_blank');
+            window.location.href = data.index_url;
+        } else {
+            alert('There was an error processing your request.');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+</script>
 @endsection

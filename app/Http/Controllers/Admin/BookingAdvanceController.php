@@ -24,7 +24,9 @@ class BookingAdvanceController extends Controller
                 ->orWhere('total_amount', 'like', '%' . $search . '%')
                 ->orWhereHas('customer', function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%');
-                });
+                })
+                ->orWhere('sales_exec_name', 'like', '%' . $search . '%')
+                ->orderBy('created_at', 'desc');
         }
 
         $bookingAdvances = $query->paginate(10);
@@ -45,7 +47,7 @@ class BookingAdvanceController extends Controller
 
         validate_permission('booking_advances.create');
 
-        $data = $request->only(['customer_id', 'order_booking_number', 'total_amount']);
+        $data = $request->only(['customer_id', 'order_booking_number', 'total_amount', 'sales_exec_name']);
         $bookingAdvance = BookingAdvance::create($data);
 
         // $payments = $request->input('payments', []);
@@ -108,6 +110,14 @@ class BookingAdvanceController extends Controller
         ]);
 
         return redirect()->route('admin.booking-advances.index')->with('success', 'Booking Advance created successfully!');
+        if ($request->input('action') === 'save_generate_receipt') {
+            // Redirect to the receipt view
+            return redirect()->route('admin.booking-advances.receipt', $bookingAdvance);
+        }
+
+        // Redirect to a simple confirmation page or index
+        return redirect()->route('admin.booking-advances.index')
+            ->with('success', 'Booking Advance updated successfully!');
     }
 
     public function edit(BookingAdvance $bookingAdvance)
@@ -116,16 +126,16 @@ class BookingAdvanceController extends Controller
 
         $customers = Customer::all();
         $bookingAdvance->load(['payments', 'customer']);
+        $balance = $bookingAdvance->total_amount - $bookingAdvance->amount_paid;
 
-
-        return view('admin.booking-advances.edit', compact('bookingAdvance', 'customers'));
+        return view('admin.booking-advances.edit', compact('bookingAdvance', 'customers', 'balance'));
     }
 
     public function update(Request $request, BookingAdvance $bookingAdvance)
     {
         validate_permission('booking_advances.update');
 
-        $data = $request->only(['customer_id', 'order_booking_number', 'total_amount']);
+        $data = $request->only(['customer_id', 'order_booking_number', 'total_amount', 'sales_exec_name']);
         $bookingAdvance->update($data);
 
         $bookingAdvance->payments()->delete();
@@ -190,8 +200,14 @@ class BookingAdvanceController extends Controller
             'amount_paid' => $amountPaid,
             'balance' => $data['total_amount'] - $amountPaid
         ]);
+        if ($request->input('action') === 'save_generate_receipt') {
+            // Redirect to the receipt view
+            return redirect()->route('admin.booking-advances.receipt', $bookingAdvance);
+        }
 
-        return redirect()->route('admin.booking-advances.index')->with('success', 'Booking Advance updated successfully!');
+        // Redirect to a simple confirmation page or index
+        return redirect()->route('admin.booking-advances.index')
+            ->with('success', 'Booking Advance updated successfully!');
     }
 
     public function destroy(BookingAdvance $bookingAdvance)

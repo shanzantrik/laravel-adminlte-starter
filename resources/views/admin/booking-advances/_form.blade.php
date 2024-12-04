@@ -59,6 +59,17 @@
         </div>
 
         <div class="form-group">
+            <label for="sales_exec_name">{{ __('Sales Executive Name') }}</label>
+            <input type="text" name="sales_exec_name"
+                class="form-control @error('sales_exec_name') is-invalid @enderror" id="sales_exec_name"
+                placeholder="Enter Sales Executive Name"
+                value="{{ old('sales_exec_name', $bookingAdvance->sales_exec_name ?? '') }}" required>
+            @error('sales_exec_name')
+            <small class="error invalid-feedback" role="alert">{{ $message }}</small>
+            @enderror
+        </div>
+
+        <div class="form-group">
             <label for="total_amount">{{ __('Total Amount*') }}</label>
             <input type="number" step="0.01" name="total_amount"
                 class="form-control @error('total_amount') is-invalid @enderror" id="total_amount"
@@ -80,7 +91,7 @@
 
         <!-- Form Buttons -->
         <div class="form-group d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" id="saveButton" disabled>
                 {{ isset($bookingAdvance) ? 'Update' : 'Save' }}
             </button>
             <a href="{{ route('admin.booking-advances.index') }}" class="btn btn-secondary">Cancel</a>
@@ -113,6 +124,13 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+
+    function validateSubmitButton() {
+        const balanceDisplay = parseFloat(document.getElementById("balanceDisplay").innerText) || 0;
+        const isValid = balanceDisplay === 0;
+        document.getElementById("saveButton").disabled = !isValid;
+        document.getElementById("saveGenerateButton").disabled = !isValid;
+    }
         // Define updatePaymentSummary first
         window.updatePaymentSummary = function() {
             const totalAmount = parseFloat(document.getElementById("total_amount").value) || 0;
@@ -136,6 +154,7 @@
             document.getElementById("totalAmountDisplay").innerText = totalAmount.toFixed(2);
             document.getElementById("amountPaidDisplay").innerText = amountPaid.toFixed(2);
             document.getElementById("balanceDisplay").innerText = balance.toFixed(2);
+validateSubmitButton();
         };
 
         // Add event listener for total amount
@@ -491,8 +510,16 @@
         @if(isset($bookingAdvance) && $bookingAdvance->customer)
             customersData = [@json($bookingAdvance->customer)];
         @endif
+        // Add default cash payment row
+        if (document.getElementById('paymentsContainer').children.length === 0) {
+                addPaymentRow();
+                setTimeout(() => {
+                    const firstPaymentSelect = document.querySelector('.payment-type');
+                    if (firstPaymentSelect) {
+                        firstPaymentSelect.value = 'cash';
+                        showPaymentFields(firstPaymentSelect, 0);
+                    }
+                }, 0);
+            }
     });
-
-
-
 </script>

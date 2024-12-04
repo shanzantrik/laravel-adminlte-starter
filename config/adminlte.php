@@ -547,4 +547,5 @@ return [
     */
 
     'livewire' => false,
+    'pagination' => 'bootstrap-4',
 ];

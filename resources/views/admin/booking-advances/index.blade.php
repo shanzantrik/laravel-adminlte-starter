@@ -3,6 +3,16 @@
 @section('title', 'Booking Advances')
 
 @section('main')
+@if(session('success'))
+<div class="alert alert-success">
+  {{ session('success') }}
+</div>
+@endif
+@if(session('error'))
+<div class="alert alert-danger">
+  {{ session('error') }}
+</div>
+@endif
 <div class="row">
   <div class="col-6"></div>
   <div class="col-6">
@@ -19,10 +29,11 @@
   <div class="card-body">
     <form method="GET" action="{{ route('admin.booking-advances.index') }}" class="mb-3">
       <div class="input-group">
-        <input type="text" name="search" class="form-control" placeholder="Search by Order Number, Amount, or Customer"
-          value="{{ request('search') }}">
+        <input type="text" name="search" class="form-control"
+          placeholder="Search by Order Number, Amount, Customer, or Sales Executive" value="{{ request('search') }}">
         <div class="input-group-append">
           <button class="btn btn-primary" type="submit">Search</button>
+          <a href="{{ route('admin.booking-advances.index') }}" class="btn btn-secondary ml-2">Clear</a>
         </div>
       </div>
     </form>
@@ -36,6 +47,7 @@
             <th>Amount Paid</th>
             <th>Balance</th>
             <th>Customer</th>
+            <th>Sales Executive</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -47,6 +59,7 @@
             <td>₹{{ number_format($advance->amount_paid, 2) }}</td>
             <td>₹{{ number_format($advance->balance, 2) }}</td>
             <td>{{ $advance->customer->name ?? 'N/A' }}</td>
+            <td>{{ $advance->sales_exec_name ?? 'N/A' }}</td>
             <td>
               <a href="{{ route('admin.booking-advances.edit', $advance) }}" class="btn btn-sm btn-primary">Edit</a>
               <a href="{{ route('admin.booking-advances.receipt', $advance) }}" class="btn btn-sm btn-info"
@@ -71,9 +84,15 @@
       </table>
     </div>
 
-    <div class="d-flex justify-content-center mt-3">
-      {{ $bookingAdvances->appends(['search' => $search])->links() }}
-    </div>
+    <nav aria-label="Page navigation">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>Showing {{ $bookingAdvances->firstItem() }} to {{ $bookingAdvances->lastItem() }} of {{
+          $bookingAdvances->total() }} results</div>
+        <ul class="pagination mb-0">
+          {{ $bookingAdvances->appends(['search' => $search])->onEachSide(1)->links() }}
+        </ul>
+      </div>
+    </nav>
   </div>
 </div>
 @endsection

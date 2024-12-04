@@ -15,6 +15,7 @@ class BookingAdvance extends Model
         'customer_id',
         'order_booking_number',
         'total_amount',
+        'sales_exec_name',
         'amount_paid',
         'balance',
     ];

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,8 +23,8 @@ class UpdateCustomerRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'phone_no' => ['required', 'string', 'max:15', 'unique:customers,phone_no,' . $this->route('customer')->id],
-            'vehicle_registration_no' => ['nullable', 'string', 'max:255'],
+            'phone_no' => ['required', 'string', 'size:10', 'regex:/^[0-9]{10}$/', 'unique:customers,phone_no'],
+            'vehicle_registration_no' => ['required', 'string', 'max:255', 'unique:customers,vehicle_registration_no'],
         ];
     }
 }

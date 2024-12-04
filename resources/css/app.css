@@ -4,3 +4,17 @@
     background-color: #a11c2d !important;
     color: #fff !important;
   }
+  .pagination {
+    margin-bottom: 0;
+  }
+
+  .page-link {
+      padding: 0.5rem 0.75rem;
+      margin-left: -1px;
+      border: 1px solid #dee2e6;
+  }
+
+  .page-item.active .page-link {
+      background-color: #007bff;
+      border-color: #007bff;
+  }

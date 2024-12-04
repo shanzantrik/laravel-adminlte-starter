@@ -127,26 +127,34 @@ class CustomerController extends Controller
         return view('admin.customers.create', compact('customer', 'roles', 'customerRoles'));
     }
 
-    public function store(StoreCustomerRequest $request): RedirectResponse
+    public function store(StoreCustomerRequest $request): JsonResponse|RedirectResponse
     {
         validate_permission('customers.create');
 
         try {
             DB::beginTransaction();
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'phone_no' => 'required|string|size:10|regex:/^[0-9]{10}$/|unique:customers,phone_no',
-                'vehicle_registration_no' => 'nullable|string|max:20|unique:customers'
-            ]);
+            $validated = $request->validated();
+            $customer = Customer::create($validated);
             DB::commit();
-            $customer = Customer::create($request->only('name', 'phone_no', 'vehicle_registration_no'));
-
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Customer created successfully!',
+                    'data' => $customer
+                ], 200);
+            }
             return redirect()
                 ->route('admin.customers.index')
                 ->with('success', 'Customer created successfully!');  // Ensure 200 status for success
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error in customer store: " . $e->getMessage());
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create customer'
+                ], 500);
+            }
             return redirect()
                 ->back()
                 ->withInput()
@@ -168,16 +176,18 @@ class CustomerController extends Controller
         return view('admin.customers.edit', compact('customer'));
     }
 
-    public function update($request, Customer $customer): RedirectResponse
+    public function update(UpdateCustomerRequest $request, Customer $customer): JsonResponse|RedirectResponse
     {
+        // Ensure permissions using your custom function
         validate_permission('customers.update');
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone_no' => 'required|string|size:10|regex:/^[0-9]{10}$/|unique:customers,phone_no',
-            'vehicle_registration_no' => 'nullable|string|max:20|unique:customers'
-        ]);
+        // Validate and get the data
+        $validated = $request->validated();
 
+        // Update the customer instance
+        $customer->update($validated);
+
+        // Return appropriate response
         return redirect()
             ->route('admin.customers.index')
             ->with('success', 'Customer updated successfully!');
