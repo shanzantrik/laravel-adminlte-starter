@@ -6,6 +6,7 @@ use App\Models\Paymentmain;
 use App\Models\PaymentCheque;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class PaymentMainController extends Controller
 {
@@ -30,31 +31,26 @@ class PaymentMainController extends Controller
       'cheques.*.date' => 'required_with:cheques|date',
     ]);
 
-    $payment = Paymentmain::create([
-      'payment_type' => $validated['payment_type'],
-      'amount' => $validated['amount'],
-      'denominations' => $validated['payment_type'] === 'cash' ? $validated['denominations'] : null,
-      'no_of_cheques' => $validated['payment_type'] === 'cheque' ? $validated['no_of_cheques'] : null,
-    ]);
+    DB::transaction(function () use ($validated) {
+      // Insert the payment
+      $payment = Paymentmain::create([
+        'payment_type' => $validated['payment_type'],
+        'amount' => $validated['amount'],
+        'denominations' => $validated['payment_type'] === 'cash' ? $validated['denominations'] : null,
+        'no_of_cheques' => $validated['payment_type'] === 'cheque' ? $validated['no_of_cheques'] : null,
+      ]);
 
-    if ($validated['payment_type'] === 'cheque' && isset($validated['cheques'])) {
-      foreach ($validated['cheques'] as $cheque) {
-        PaymentCheque::create([
-          'payment_id' => $payment->id,
-          'cheque_number' => $cheque['number'],
-          'cheque_date' => $cheque['date'],
-        ]);
-        // if ($validated['payment_type'] === 'cheque' && isset($validated['cheques'])) {
-        //   foreach ($validated['cheques'] as $cheque) {
-        //     PaymentCheque::create([
-        //       'payment_id' => $payment->id,
-        //       'cheque_number' => $cheque['number'],
-        //       'cheque_date' => $cheque['date'],
-        //     ]);
-        //   }
-        // }
+      // Insert cheques only if payment_type is cheque
+      if ($validated['payment_type'] === 'cheque' && isset($validated['cheques'])) {
+        foreach ($validated['cheques'] as $cheque) {
+          PaymentCheque::create([
+            'payment_id' => $payment->id, // Ensure correct foreign key
+            'cheque_number' => $cheque['number'],
+            'cheque_date' => $cheque['date'],
+          ]);
+        }
       }
-    }
+    });
 
     return redirect()->route('paymentsmain.index')->with('success', 'Payment created successfully!');
   }

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('content')
+@section('main')
 <div class="container">
   <h2>{{ isset($payment) ? 'Edit Payment' : 'Add Payment' }}</h2>
 

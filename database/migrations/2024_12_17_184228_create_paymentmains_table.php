@@ -19,7 +19,8 @@ class CreatePaymentmainsTable extends Migration
 
         Schema::create('payment_cheques', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('payment_id')->constrained('payments')->onDelete('cascade');
+            $table->unsignedBigInteger('payment_id');
+            $table->foreign('payment_id')->references('id')->on('paymentmains')->onDelete('cascade');
             $table->string('cheque_number');
             $table->date('cheque_date');
             $table->timestamps();

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('content')
+@section('main')
 <div class="container">
   <h2>Payments Main</h2>
   <a href="{{ route('paymentsmain.create') }}" class="btn btn-primary mb-3">Add New Payment</a>
