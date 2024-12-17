@@ -16,6 +16,7 @@
         "datatables.net-bs4": "^2.0.8",
         "datatables.net-responsive-bs4": "^3.0.2",
         "datatables.net-staterestore-bs4": "^1.4.1",
-        "jquery": "^3.7.1"
+        "jquery": "^3.7.1",
+        "select2": "^4.1.0-rc.0"
     }
 }

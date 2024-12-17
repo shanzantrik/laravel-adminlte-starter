@@ -10,6 +10,9 @@ import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 import 'datatables.net-responsive-bs4';
 import 'datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css';
 import 'datatables.net-staterestore-bs4';
+import 'select2/dist/css/select2.min.css';
+import 'select2/dist/js/select2.min.js';
+
 
 import "./adminlte3";
 import "./bootstrap";

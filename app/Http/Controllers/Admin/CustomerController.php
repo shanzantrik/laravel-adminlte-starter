@@ -203,41 +203,61 @@ class CustomerController extends Controller
             ->with('success', 'Customer deleted successfully!');
     }
 
+    // public function search(Request $request)
+    // {
+    //     try {
+    //         $query = $request->get('query');
+    //         Log::info('Customer search request received', ['query' => $query]);
+
+    //         if (empty($query)) {
+    //             return response()->json([
+    //                 'error' => 'Search query is required'
+    //             ], 400);
+    //         }
+
+    //         $customers = Customer::where(function ($q) use ($query) {
+    //             $q->where('phone_no', 'LIKE', "%{$query}%")
+    //                 ->orWhere('vehicle_registration_no', 'LIKE', "%{$query}%");
+    //         })
+    //             ->select(['id', 'name', 'phone_no', 'vehicle_registration_no'])
+    //             ->limit(10)
+    //             ->get();
+
+    //         Log::info('Customer search results', [
+    //             'query' => $query,
+    //             'count' => $customers->count()
+    //         ]);
+
+    //         return response()->json($customers);
+    //     } catch (\Exception $e) {
+    //         Log::error('Error in customer search', [
+    //             'error' => $e->getMessage(),
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+
+    //         return response()->json([
+    //             'error' => 'An error occurred while searching for customers'
+    //         ], 500);
+    //     }
+    // }
+
     public function search(Request $request)
     {
-        try {
-            $query = $request->get('query');
-            Log::info('Customer search request received', ['query' => $query]);
+        $query = $request->input('query');
 
-            if (empty($query)) {
-                return response()->json([
-                    'error' => 'Search query is required'
-                ], 400);
-            }
+        $customers = Customer::where('name', 'LIKE', "%{$query}%")
+            ->orWhere('phone_no', 'LIKE', "%{$query}%")
+            ->orWhere('vehicle_registration_no', 'LIKE', "%{$query}%")
+            ->take(10)
+            ->get();
 
-            $customers = Customer::where(function ($q) use ($query) {
-                $q->where('phone_no', 'LIKE', "%{$query}%")
-                    ->orWhere('vehicle_registration_no', 'LIKE', "%{$query}%");
-            })
-                ->select(['id', 'name', 'phone_no', 'vehicle_registration_no'])
-                ->limit(10)
-                ->get();
-
-            Log::info('Customer search results', [
-                'query' => $query,
-                'count' => $customers->count()
-            ]);
-
-            return response()->json($customers);
-        } catch (\Exception $e) {
-            Log::error('Error in customer search', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'error' => 'An error occurred while searching for customers'
-            ], 500);
-        }
+        return response()->json($customers->map(function ($customer) {
+            return [
+                'id' => $customer->id,
+                'name' => $customer->name,
+                'phone_no' => $customer->phone_no,
+                'vehicle_registration_no' => $customer->vehicle_registration_no,
+            ];
+        }));
     }
 }

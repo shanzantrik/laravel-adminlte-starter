@@ -16,7 +16,7 @@
     <div class="col-md-8">
         <!-- Customer and Booking Details -->
 
-        <div class="form-group">
+        {{-- <div class="form-group">
             <label for="customer_search">{{ __('Search Customer by Phone Number or Vehicle Registration*') }}</label>
             <div class="input-group">
                 <input type="text" id="customer_search" class="form-control"
@@ -38,13 +38,27 @@
             @error('customer_id')
             <small class="error invalid-feedback" role="alert">{{ $message }}</small>
             @enderror
+        </div> --}}
+        <div class="form-group position-relative">
+            <label for="customer_search">Search Customer</label>
+            <input type="text" id="customer_search" class="form-control"
+                placeholder="Search customer by name, phone, or vehicle number">
+            <input type="hidden" id="customer_id" name="customer_id">
+            <!-- Results List -->
+            <ul id="customer_results" class="list-group position-absolute w-100" style="z-index: 1000; display: none;">
+            </ul>
         </div>
 
         <div class="form-group">
-            <label for="customer_name">{{ __('Customer Name') }}</label>
+            <label for="customer_name">Customer Name</label>
             <input type="text" id="customer_name" class="form-control" readonly
                 value="{{ old('customer_name', isset($bookingAdvance->customer) ? $bookingAdvance->customer->name : '') }}">
         </div>
+        {{-- <div class="form-group">
+            <label for="customer_name">{{ __('Customer Name') }}</label>
+            <input type="text" id="customer_name" class="form-control" readonly
+                value="{{ old('customer_name', isset($bookingAdvance->customer) ? $bookingAdvance->customer->name : '') }}">
+        </div> --}}
 
 
         <div class="form-group">
@@ -121,6 +135,90 @@
     </div>
 
 </div>
+<style>
+    #customer_results {
+        max-height: 200px;
+        overflow-y: auto;
+        width: 100%;
+    }
+
+    #customer_results .list-group-item {
+        padding: 10px;
+        font-size: 14px;
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("customer_search");
+    const customerResults = document.getElementById("customer_results");
+    const customerNameInput = document.getElementById("customer_name");
+    const customerIdInput = document.getElementById("customer_id");
+
+    let debounceTimer;
+
+    // Event listener for input field
+    searchInput.addEventListener("input", function () {
+        clearTimeout(debounceTimer);
+        const query = searchInput.value.trim();
+
+        if (query.length >= 3) {
+            debounceTimer = setTimeout(() => {
+                fetchCustomers(query);
+            }, 300);
+        } else {
+            customerResults.style.display = "none";
+        }
+    });
+
+    // Function to fetch customers via AJAX
+    function fetchCustomers(query) {
+        fetch(`/admin/customers/search?query=${encodeURIComponent(query)}`, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+            }
+        })
+        .then(response => response.json())
+        .then(data => displayResults(data))
+        .catch(error => console.error("Error fetching customers:", error));
+    }
+
+    // Function to display autocomplete results
+    function displayResults(customers) {
+        customerResults.innerHTML = ""; // Clear existing results
+        if (customers.length === 0) {
+            customerResults.innerHTML = `<li class="list-group-item text-muted">No customers found</li>`;
+        } else {
+            customers.forEach(customer => {
+                const listItem = document.createElement("li");
+                listItem.className = "list-group-item list-group-item-action";
+                listItem.textContent = `${customer.name} - ${customer.phone_no} - ${customer.vehicle_registration_no}`;
+                listItem.style.cursor = "pointer";
+                listItem.addEventListener("click", () => selectCustomer(customer));
+                customerResults.appendChild(listItem);
+            });
+        }
+        customerResults.style.display = "block";
+    }
+
+    // Function to handle customer selection
+    function selectCustomer(customer) {
+        searchInput.value = `${customer.name} - ${customer.phone_no} - ${customer.vehicle_registration_no}`;
+        customerIdInput.value = customer.id; // Set the selected customer's ID
+        customerNameInput.value = customer.name; // Auto-fill customer name
+        customerResults.style.display = "none"; // Hide results
+    }
+
+    // Hide results on click outside
+    document.addEventListener("click", function (e) {
+        if (!customerResults.contains(e.target) && e.target !== searchInput) {
+            customerResults.style.display = "none";
+        }
+    });
+});
+</script>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -322,189 +420,189 @@ validateSubmitButton();
             @endforeach
         @endif
 
-        // Cache DOM elements
-        const elements = {
-            searchInput: document.getElementById("customer_search"),
-            searchButton: document.getElementById("customer_search_button"),
-            customerSelect: document.getElementById("customer_id"),
-            customerNameInput: document.getElementById("customer_name")
-        };
-        let customersData = [];
-        // Configuration
-        const config = {
-            minSearchLength: 3,
-            searchEndpoint: '/admin/customers/search', // Verify this matches your Laravel route
-            debounceDelay: 300
-        };
+        // // Cache DOM elements
+        // const elements = {
+        //     searchInput: document.getElementById("customer_search"),
+        //     searchButton: document.getElementById("customer_search_button"),
+        //     customerSelect: document.getElementById("customer_id"),
+        //     customerNameInput: document.getElementById("customer_name")
+        // };
+        // let customersData = [];
+        // // Configuration
+        // const config = {
+        //     minSearchLength: 3,
+        //     searchEndpoint: '/admin/customers/search', // Verify this matches your Laravel route
+        //     debounceDelay: 300
+        // };
 
-        // Get CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        // // Get CSRF token
+        // const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-        // Debug: Log CSRF token presence
-        console.log('CSRF Token present:', !!csrfToken);
+        // // Debug: Log CSRF token presence
+        // console.log('CSRF Token present:', !!csrfToken);
 
-        // Validate if all required elements are present
-        if (!validateElements(elements)) {
-            console.error("Missing DOM elements:",
-                Object.entries(elements)
-                    .filter(([key, value]) => !value)
-                    .map(([key]) => key)
-            );
-            return;
-        }
+        // // Validate if all required elements are present
+        // if (!validateElements(elements)) {
+        //     console.error("Missing DOM elements:",
+        //         Object.entries(elements)
+        //             .filter(([key, value]) => !value)
+        //             .map(([key]) => key)
+        //     );
+        //     return;
+        // }
 
-        function validateElements(elements) {
-            return Object.values(elements).every(element => element !== null);
-        }
+        // function validateElements(elements) {
+        //     return Object.values(elements).every(element => element !== null);
+        // }
 
-        // Initialize event listeners
-        elements.searchButton.addEventListener("click", () => {
-            console.log("Search button clicked");
-            handleSearch();
-        });
+        // // Initialize event listeners
+        // elements.searchButton.addEventListener("click", () => {
+        //     console.log("Search button clicked");
+        //     handleSearch();
+        // });
 
-        elements.searchInput.addEventListener("input", debounce(function(e) {
-            console.log("Input changed:", e.target.value);
-            if (e.target.value.length >= config.minSearchLength) {
-                handleSearch();
-            }
-        }, config.debounceDelay));
+        // elements.searchInput.addEventListener("input", debounce(function(e) {
+        //     console.log("Input changed:", e.target.value);
+        //     if (e.target.value.length >= config.minSearchLength) {
+        //         handleSearch();
+        //     }
+        // }, config.debounceDelay));
 
-        async function handleSearch() {
-            const query = elements.searchInput.value.trim();
-            console.log('Handling search for query:', query);
+        // async function handleSearch() {
+        //     const query = elements.searchInput.value.trim();
+        //     console.log('Handling search for query:', query);
 
-            if (query.length < 3) {
-                alert("Please enter at least 3 characters to search.");
-                return;
-            }
+        //     if (query.length < 3) {
+        //         alert("Please enter at least 3 characters to search.");
+        //         return;
+        //     }
 
-            try {
-                showMessage("Searching...", "info");
-                const data = await fetchCustomers(query);
-                customersData = data;
-                console.log('Received data:', data);
-                updateCustomerDropdown(data);
-            } catch (error) {
-                console.error("Detailed error:", error);
-                showMessage(`Error: ${error.message}`, "error");
-            }
-        }
+        //     try {
+        //         showMessage("Searching...", "info");
+        //         const data = await fetchCustomers(query);
+        //         customersData = data;
+        //         console.log('Received data:', data);
+        //         updateCustomerDropdown(data);
+        //     } catch (error) {
+        //         console.error("Detailed error:", error);
+        //         showMessage(`Error: ${error.message}`, "error");
+        //     }
+        // }
 
-        async function fetchCustomers(query) {
-            const searchUrl = `${config.searchEndpoint}?query=${encodeURIComponent(query)}`;
-            console.log('Fetching from URL:', searchUrl);
+        // async function fetchCustomers(query) {
+        //     const searchUrl = `${config.searchEndpoint}?query=${encodeURIComponent(query)}`;
+        //     console.log('Fetching from URL:', searchUrl);
 
-            try {
-                const response = await fetch(searchUrl, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest' // Add this for Laravel to detect AJAX request
-                    },
-                    credentials: 'same-origin'
-                });
+        //     try {
+        //         const response = await fetch(searchUrl, {
+        //             method: 'GET',
+        //             headers: {
+        //                 'X-CSRF-TOKEN': csrfToken,
+        //                 'Content-Type': 'application/json',
+        //                 'Accept': 'application/json',
+        //                 'X-Requested-With': 'XMLHttpRequest' // Add this for Laravel to detect AJAX request
+        //             },
+        //             credentials: 'same-origin'
+        //         });
 
-                console.log('Response status:', response.status);
+        //         console.log('Response status:', response.status);
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Response error text:', errorText);
-                    throw new Error(`Server responded with status: ${response.status}`);
-                }
+        //         if (!response.ok) {
+        //             const errorText = await response.text();
+        //             console.error('Response error text:', errorText);
+        //             throw new Error(`Server responded with status: ${response.status}`);
+        //         }
 
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("Received non-JSON response from server");
-                }
+        //         const contentType = response.headers.get("content-type");
+        //         if (!contentType || !contentType.includes("application/json")) {
+        //             throw new Error("Received non-JSON response from server");
+        //         }
 
-                return await response.json();
-            } catch (error) {
-                console.error('Fetch error:', error);
-                throw error;
-            }
-        }
+        //         return await response.json();
+        //     } catch (error) {
+        //         console.error('Fetch error:', error);
+        //         throw error;
+        //     }
+        // }
 
-        function updateCustomerDropdown(customers) {
-            console.log('Updating dropdown with customers:', customers);
+        // function updateCustomerDropdown(customers) {
+        //     console.log('Updating dropdown with customers:', customers);
 
-            // Clear existing options
-            elements.customerSelect.innerHTML = '<option value="">Select Customer</option>';
+        //     // Clear existing options
+        //     elements.customerSelect.innerHTML = '<option value="">Select Customer</option>';
 
-            if (!Array.isArray(customers)) {
-                console.error('Received non-array customers data:', customers);
-                showMessage("Invalid data format received from server.", "error");
-                return;
-            }
+        //     if (!Array.isArray(customers)) {
+        //         console.error('Received non-array customers data:', customers);
+        //         showMessage("Invalid data format received from server.", "error");
+        //         return;
+        //     }
 
-            if (customers.length === 0) {
-                showMessage("No customers found.", "info");
-                return;
-            }
+        //     if (customers.length === 0) {
+        //         showMessage("No customers found.", "info");
+        //         return;
+        //     }
 
-            // Add new options
-            customers.forEach(customer => {
-                const option = document.createElement("option");
-                option.value = customer.id;
-                option.textContent = formatCustomerOption(customer);
-                option.dataset.name = customer.name;
-                elements.customerSelect.appendChild(option);
-            });
+        //     // Add new options
+        //     customers.forEach(customer => {
+        //         const option = document.createElement("option");
+        //         option.value = customer.id;
+        //         option.textContent = formatCustomerOption(customer);
+        //         option.dataset.name = customer.name;
+        //         elements.customerSelect.appendChild(option);
+        //     });
 
-            showMessage(`Found ${customers.length} customers`, "success");
-        }
+        //     showMessage(`Found ${customers.length} customers`, "success");
+        // }
 
-        // Make handleCustomerSelection globally available
-        window.handleCustomerSelection = function(selectedId) {
-            console.log('Selected customer ID:', selectedId);
+        // // Make handleCustomerSelection globally available
+        // window.handleCustomerSelection = function(selectedId) {
+        //     console.log('Selected customer ID:', selectedId);
 
-            if (!selectedId) {
-                document.getElementById('customer_name').value = '';
-                return;
-            }
+        //     if (!selectedId) {
+        //         document.getElementById('customer_name').value = '';
+        //         return;
+        //     }
 
-            // Find the selected customer from stored data
-            const selectedCustomer = customersData.find(customer => customer.id.toString() === selectedId.toString());
+        //     // Find the selected customer from stored data
+        //     const selectedCustomer = customersData.find(customer => customer.id.toString() === selectedId.toString());
 
-            if (selectedCustomer) {
-                console.log('Found customer:', selectedCustomer);
-                document.getElementById('customer_name').value = selectedCustomer.name || '';
-            } else {
-                console.error('Customer not found for ID:', selectedId);
-                document.getElementById('customer_name').value = '';
-            }
-        };
+        //     if (selectedCustomer) {
+        //         console.log('Found customer:', selectedCustomer);
+        //         document.getElementById('customer_name').value = selectedCustomer.name || '';
+        //     } else {
+        //         console.error('Customer not found for ID:', selectedId);
+        //         document.getElementById('customer_name').value = '';
+        //     }
+        // };
 
-        function formatCustomerOption(customer) {
-            return `${customer.name || 'N/A'} - ${customer.phone_no || 'N/A'} - ${customer.vehicle_registration_no || 'N/A'}`;
-        }
+        // function formatCustomerOption(customer) {
+        //     return `${customer.name || 'N/A'} - ${customer.phone_no || 'N/A'} - ${customer.vehicle_registration_no || 'N/A'}`;
+        // }
 
-        function showMessage(message, type = 'info') {
-            console.log(`${type}: ${message}`);
+        // function showMessage(message, type = 'info') {
+        //     console.log(`${type}: ${message}`);
 
-            // You can replace this with a more sophisticated notification system
-            if (type === 'error') {
-                alert(message);
-            }
-        }
+        //     // You can replace this with a more sophisticated notification system
+        //     if (type === 'error') {
+        //         alert(message);
+        //     }
+        // }
 
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+        // function debounce(func, wait) {
+        //     let timeout;
+        //     return function executedFunction(...args) {
+        //         const later = () => {
+        //             clearTimeout(timeout);
+        //             func(...args);
+        //         };
+        //         clearTimeout(timeout);
+        //         timeout = setTimeout(later, wait);
+        //     };
+        // }
 
-        // Additional debug info on load
-        console.log('Search module initialized');
-        console.log('Current endpoint:', config.searchEndpoint);
+        // // Additional debug info on load
+        // console.log('Search module initialized');
+        // console.log('Current endpoint:', config.searchEndpoint);
 
         // Initialize customer data if in edit mode
         @if(isset($bookingAdvance) && $bookingAdvance->customer)

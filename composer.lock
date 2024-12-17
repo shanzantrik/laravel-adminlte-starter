@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b66459ace8d7e30fea4febe21c44b7e3",
+    "content-hash": "0c6e9d8677b70ed8490cce4677a9a762",
     "packages": [
         {
             "name": "almasaeed2010/adminlte",
@@ -5445,6 +5445,64 @@
             "time": "2024-09-25T14:20:29+00:00"
         },
         {
+            "name": "teofanis/searchable-dropdown",
+            "version": "1.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/teofanis/searchable-dropdown.git",
+                "reference": "85cc8f912f97a1f858321a0152055a2ec364c916"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/teofanis/searchable-dropdown/zipball/85cc8f912f97a1f858321a0152055a2ec364c916",
+                "reference": "85cc8f912f97a1f858321a0152055a2ec364c916",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^6.0|^7.0|^8.0|^9.0|^10.0|^11.0",
+                "php": "^7.1|^8.0|^8.1|^8.2|^8.3"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^4.0",
+                "phpunit/phpunit": "^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Teofanis\\SearchableDropdown\\SearchableDropdownServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Teofanis\\SearchableDropdown\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Teofanis Papadopulos",
+                    "email": "teos_97@hotmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Searchable Dropdown",
+            "homepage": "https://github.com/teofanis/searchable-dropdown",
+            "keywords": [
+                "searchable-dropdown",
+                "teofanis"
+            ],
+            "support": {
+                "issues": "https://github.com/teofanis/searchable-dropdown/issues",
+                "source": "https://github.com/teofanis/searchable-dropdown/tree/1.5.1"
+            },
+            "time": "2024-10-18T09:54:18+00:00"
+        },
+        {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.2.7",
             "source": {
@@ -8006,12 +8064,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }
