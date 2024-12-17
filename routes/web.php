@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\BookingAdvanceController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\NewVehicleSaleController;
+use App\Http\Controllers\Admin\PaymentMainController;
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard.index');
@@ -31,7 +32,7 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('booking-advances.receipt');
         Route::resource('new-vehicle-sales', NewVehicleSaleController::class);
     });
-
+    Route::resource('paymentsmain', PaymentMainController::class);
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
