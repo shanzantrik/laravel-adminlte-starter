@@ -40,7 +40,7 @@
             @enderror
         </div> --}}
         <div class="form-group position-relative">
-            <label for="customer_search">Search Customer</label>
+            <label for="customer_search">Search Phone Number</label>
             <input type="text" id="customer_search" class="form-control"
                 placeholder="Search customer by name, phone, or vehicle number">
             <input type="hidden" id="customer_id" name="customer_id">
@@ -51,14 +51,14 @@
 
         <div class="form-group">
             <label for="customer_name">Customer Name</label>
-            <input type="text" id="customer_name" class="form-control" readonly
+            <input type="text" id="customer_name" class="form-control"
                 value="{{ old('customer_name', isset($bookingAdvance->customer) ? $bookingAdvance->customer->name : '') }}">
         </div>
-        {{-- <div class="form-group">
-            <label for="customer_name">{{ __('Customer Name') }}</label>
-            <input type="text" id="customer_name" class="form-control" readonly
-                value="{{ old('customer_name', isset($bookingAdvance->customer) ? $bookingAdvance->customer->name : '') }}">
-        </div> --}}
+        <div class="form-group">
+            <label for="customer_phone_no">Phone Number</label>
+            <input type="text" id="customer_phone_no" class="form-control"
+                value="{{ old('customer_phone_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->phone_no : '') }}">
+        </div>
 
 
         <div class="form-group">
@@ -152,6 +152,7 @@
     const searchInput = document.getElementById("customer_search");
     const customerResults = document.getElementById("customer_results");
     const customerNameInput = document.getElementById("customer_name");
+    const customerPhoneInput = document.getElementById("customer_phone_no");
     const customerIdInput = document.getElementById("customer_id");
 
     let debounceTimer;
@@ -190,26 +191,133 @@
         if (customers.length === 0) {
             customerResults.innerHTML = `<li class="list-group-item text-muted">No customers found</li>`;
         } else {
-            customers.forEach(customer => {
-                const listItem = document.createElement("li");
-                listItem.className = "list-group-item list-group-item-action";
-                listItem.textContent = `${customer.name} - ${customer.phone_no} - ${customer.vehicle_registration_no}`;
-                listItem.style.cursor = "pointer";
-                listItem.addEventListener("click", () => selectCustomer(customer));
-                customerResults.appendChild(listItem);
-            });
-        }
-        customerResults.style.display = "block";
+        customers.forEach(customer => {
+            // Main customer row
+            const customerRow = document.createElement("li");
+            customerRow.className = "list-group-item list-group-item-action customer-row";
+
+            // Customer info
+            const customerInfo = document.createElement("div");
+            customerInfo.className = "customer-info";
+            customerInfo.innerHTML = `
+                <strong>${customer.name}</strong><br>
+                <small>Phone: ${customer.phone_no} | Vehicle: ${customer.vehicle_registration_no}</small>
+            `;
+            customerRow.appendChild(customerInfo);
+
+            // Add booking numbers if they exist
+            if (customer.booking_numbers && customer.booking_numbers.length > 0) {
+                const bookingsContainer = document.createElement("div");
+                bookingsContainer.className = "booking-numbers mt-2";
+
+                customer.booking_numbers.forEach(booking => {
+                    const bookingRow = document.createElement("div");
+                    bookingRow.className = "booking-row";
+                    bookingRow.innerHTML = `
+                        <i class="fas fa-file-invoice me-2"></i>
+                        Booking: ${booking.number} | Amount: ₹${booking.amount.toLocaleString()} | Date: ${booking.date}
+                    `;
+                    bookingRow.addEventListener("click", (e) => {
+                        e.stopPropagation(); // Prevent triggering parent click
+                        selectCustomerWithBooking(customer, booking.number);
+                    });
+                    bookingsContainer.appendChild(bookingRow);
+                });
+
+                customerRow.appendChild(bookingsContainer);
+            }
+
+            // Add click event for selecting just the customer
+            customerInfo.addEventListener("click", () => selectCustomer(customer));
+
+            customerResults.appendChild(customerRow);
+        });
+    }
+    customerResults.style.display = "block";
+}
+
+// Function to handle customer selection with booking
+function selectCustomerWithBooking(customer, bookingNumber) {
+    // Set customer details
+    searchInput.value = `${customer.name} - ${customer.phone_no} - ${customer.vehicle_registration_no}`;
+    customerIdInput.value = customer.id;
+    customerNameInput.value = customer.name;
+    customerPhoneInput.value = customer.phone_no;
+
+    // Set booking number
+    const bookingNumberInput = document.getElementById('order_booking_number');
+    if (bookingNumberInput) {
+        bookingNumberInput.value = bookingNumber;
     }
 
-    // Function to handle customer selection
-    function selectCustomer(customer) {
-        searchInput.value = `${customer.name} - ${customer.phone_no} - ${customer.vehicle_registration_no}`;
-        customerIdInput.value = customer.id; // Set the selected customer's ID
-        customerNameInput.value = customer.name; // Auto-fill customer name
-        customerResults.style.display = "none"; // Hide results
+    customerResults.style.display = "none";
+}
+
+// Function to handle customer selection without booking
+function selectCustomer(customer) {
+    searchInput.value = `${customer.name} - ${customer.phone_no} - ${customer.vehicle_registration_no}`;
+    customerIdInput.value = customer.id;
+    customerNameInput.value = customer.name;
+    customerPhoneInput.value = customer.phone_no;
+
+    // Clear booking number if it exists
+    const bookingNumberInput = document.getElementById('order_booking_number');
+    if (bookingNumberInput) {
+        bookingNumberInput.value = '';
     }
 
+    customerResults.style.display = "none";
+}
+
+// Update the styles
+const style = document.createElement('style');
+style.textContent = `
+    #customer_results {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .customer-row {
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .customer-info {
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .customer-info:hover {
+        background-color: #f8f9fa;
+    }
+
+    .booking-numbers {
+        border-top: 1px dashed #dee2e6;
+        margin-top: 5px;
+        padding-top: 5px;
+    }
+
+    .booking-row {
+        padding: 5px 10px;
+        margin: 2px 0;
+        cursor: pointer;
+        color: #0056b3;
+        font-size: 0.9em;
+        border-radius: 3px;
+    }
+
+    .booking-row:hover {
+        background-color: #e9ecef;
+    }
+
+    .booking-row i {
+        color: #6c757d;
+    }
+`;
+document.head.appendChild(style);
     // Hide results on click outside
     document.addEventListener("click", function (e) {
         if (!customerResults.contains(e.target) && e.target !== searchInput) {
@@ -420,189 +528,6 @@ validateSubmitButton();
             @endforeach
         @endif
 
-        // // Cache DOM elements
-        // const elements = {
-        //     searchInput: document.getElementById("customer_search"),
-        //     searchButton: document.getElementById("customer_search_button"),
-        //     customerSelect: document.getElementById("customer_id"),
-        //     customerNameInput: document.getElementById("customer_name")
-        // };
-        // let customersData = [];
-        // // Configuration
-        // const config = {
-        //     minSearchLength: 3,
-        //     searchEndpoint: '/admin/customers/search', // Verify this matches your Laravel route
-        //     debounceDelay: 300
-        // };
-
-        // // Get CSRF token
-        // const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-        // // Debug: Log CSRF token presence
-        // console.log('CSRF Token present:', !!csrfToken);
-
-        // // Validate if all required elements are present
-        // if (!validateElements(elements)) {
-        //     console.error("Missing DOM elements:",
-        //         Object.entries(elements)
-        //             .filter(([key, value]) => !value)
-        //             .map(([key]) => key)
-        //     );
-        //     return;
-        // }
-
-        // function validateElements(elements) {
-        //     return Object.values(elements).every(element => element !== null);
-        // }
-
-        // // Initialize event listeners
-        // elements.searchButton.addEventListener("click", () => {
-        //     console.log("Search button clicked");
-        //     handleSearch();
-        // });
-
-        // elements.searchInput.addEventListener("input", debounce(function(e) {
-        //     console.log("Input changed:", e.target.value);
-        //     if (e.target.value.length >= config.minSearchLength) {
-        //         handleSearch();
-        //     }
-        // }, config.debounceDelay));
-
-        // async function handleSearch() {
-        //     const query = elements.searchInput.value.trim();
-        //     console.log('Handling search for query:', query);
-
-        //     if (query.length < 3) {
-        //         alert("Please enter at least 3 characters to search.");
-        //         return;
-        //     }
-
-        //     try {
-        //         showMessage("Searching...", "info");
-        //         const data = await fetchCustomers(query);
-        //         customersData = data;
-        //         console.log('Received data:', data);
-        //         updateCustomerDropdown(data);
-        //     } catch (error) {
-        //         console.error("Detailed error:", error);
-        //         showMessage(`Error: ${error.message}`, "error");
-        //     }
-        // }
-
-        // async function fetchCustomers(query) {
-        //     const searchUrl = `${config.searchEndpoint}?query=${encodeURIComponent(query)}`;
-        //     console.log('Fetching from URL:', searchUrl);
-
-        //     try {
-        //         const response = await fetch(searchUrl, {
-        //             method: 'GET',
-        //             headers: {
-        //                 'X-CSRF-TOKEN': csrfToken,
-        //                 'Content-Type': 'application/json',
-        //                 'Accept': 'application/json',
-        //                 'X-Requested-With': 'XMLHttpRequest' // Add this for Laravel to detect AJAX request
-        //             },
-        //             credentials: 'same-origin'
-        //         });
-
-        //         console.log('Response status:', response.status);
-
-        //         if (!response.ok) {
-        //             const errorText = await response.text();
-        //             console.error('Response error text:', errorText);
-        //             throw new Error(`Server responded with status: ${response.status}`);
-        //         }
-
-        //         const contentType = response.headers.get("content-type");
-        //         if (!contentType || !contentType.includes("application/json")) {
-        //             throw new Error("Received non-JSON response from server");
-        //         }
-
-        //         return await response.json();
-        //     } catch (error) {
-        //         console.error('Fetch error:', error);
-        //         throw error;
-        //     }
-        // }
-
-        // function updateCustomerDropdown(customers) {
-        //     console.log('Updating dropdown with customers:', customers);
-
-        //     // Clear existing options
-        //     elements.customerSelect.innerHTML = '<option value="">Select Customer</option>';
-
-        //     if (!Array.isArray(customers)) {
-        //         console.error('Received non-array customers data:', customers);
-        //         showMessage("Invalid data format received from server.", "error");
-        //         return;
-        //     }
-
-        //     if (customers.length === 0) {
-        //         showMessage("No customers found.", "info");
-        //         return;
-        //     }
-
-        //     // Add new options
-        //     customers.forEach(customer => {
-        //         const option = document.createElement("option");
-        //         option.value = customer.id;
-        //         option.textContent = formatCustomerOption(customer);
-        //         option.dataset.name = customer.name;
-        //         elements.customerSelect.appendChild(option);
-        //     });
-
-        //     showMessage(`Found ${customers.length} customers`, "success");
-        // }
-
-        // // Make handleCustomerSelection globally available
-        // window.handleCustomerSelection = function(selectedId) {
-        //     console.log('Selected customer ID:', selectedId);
-
-        //     if (!selectedId) {
-        //         document.getElementById('customer_name').value = '';
-        //         return;
-        //     }
-
-        //     // Find the selected customer from stored data
-        //     const selectedCustomer = customersData.find(customer => customer.id.toString() === selectedId.toString());
-
-        //     if (selectedCustomer) {
-        //         console.log('Found customer:', selectedCustomer);
-        //         document.getElementById('customer_name').value = selectedCustomer.name || '';
-        //     } else {
-        //         console.error('Customer not found for ID:', selectedId);
-        //         document.getElementById('customer_name').value = '';
-        //     }
-        // };
-
-        // function formatCustomerOption(customer) {
-        //     return `${customer.name || 'N/A'} - ${customer.phone_no || 'N/A'} - ${customer.vehicle_registration_no || 'N/A'}`;
-        // }
-
-        // function showMessage(message, type = 'info') {
-        //     console.log(`${type}: ${message}`);
-
-        //     // You can replace this with a more sophisticated notification system
-        //     if (type === 'error') {
-        //         alert(message);
-        //     }
-        // }
-
-        // function debounce(func, wait) {
-        //     let timeout;
-        //     return function executedFunction(...args) {
-        //         const later = () => {
-        //             clearTimeout(timeout);
-        //             func(...args);
-        //         };
-        //         clearTimeout(timeout);
-        //         timeout = setTimeout(later, wait);
-        //     };
-        // }
-
-        // // Additional debug info on load
-        // console.log('Search module initialized');
-        // console.log('Current endpoint:', config.searchEndpoint);
 
         // Initialize customer data if in edit mode
         @if(isset($bookingAdvance) && $bookingAdvance->customer)

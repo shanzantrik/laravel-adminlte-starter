@@ -245,7 +245,10 @@ class CustomerController extends Controller
     {
         $query = $request->input('query');
 
-        $customers = Customer::where('name', 'LIKE', "%{$query}%")
+        $customers = Customer::with(['bookingAdvances' => function ($query) {
+            $query->select('id', 'customer_id', 'order_booking_number', 'total_amount', 'created_at');
+        }])
+            ->where('name', 'LIKE', "%{$query}%")
             ->orWhere('phone_no', 'LIKE', "%{$query}%")
             ->orWhere('vehicle_registration_no', 'LIKE', "%{$query}%")
             ->take(10)
@@ -257,6 +260,13 @@ class CustomerController extends Controller
                 'name' => $customer->name,
                 'phone_no' => $customer->phone_no,
                 'vehicle_registration_no' => $customer->vehicle_registration_no,
+                'booking_numbers' => $customer->bookingAdvances->map(function ($booking) {
+                    return [
+                        'number' => $booking->order_booking_number,
+                        'amount' => $booking->total_amount,
+                        'date' => $booking->created_at->format('d M Y')
+                    ];
+                })->toArray(),
             ];
         }));
     }
