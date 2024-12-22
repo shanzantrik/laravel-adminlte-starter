@@ -17,9 +17,9 @@
         <!-- Customer and Booking Details -->
 
         <div class="form-group position-relative">
-            <label for="customer_search">Search Phone Number</label>
+            <label for="customer_search">Phone Number</label>
             <input type="text" id="customer_search" class="form-control"
-                placeholder="Search customer by name, phone, or vehicle number">
+                placeholder="Search customer by phone number by entering first 3 digits or more">
             <input type="hidden" id="customer_id" name="customer_id">
             <!-- Results List -->
             <ul id="customer_results" class="list-group position-absolute w-100" style="z-index: 1000; display: none;">
@@ -33,8 +33,7 @@
         </div>
 
         <div class="form-group">
-            <label for="customer_phone_no">Phone Number</label>
-            <input type="text" id="customer_phone_no" name="customer_phone_no" class="form-control" readonly
+            <input type="hidden" id="customer_phone_no" name="customer_phone_no" class="form-control" readonly
                 value="{{ old('customer_phone_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->phone_no : '') }}">
         </div>
 
@@ -74,10 +73,11 @@
         <!-- Payment Method Entries -->
         <div id="paymentEntries">
             <h5>Payments</h5>
-            <button type="button" class="btn btn-secondary mb-2" onclick="addPaymentRow()">Add Payment</button>
+
             <div id="paymentsContainer">
                 <!-- Existing payments will be populated here dynamically for update -->
             </div>
+            <button type="button" class="btn btn-secondary mb-2" onclick="addPaymentRow()">Add Payment</button>
         </div>
 
         <!-- Form Buttons -->
@@ -164,7 +164,7 @@
                 enableManualInput();
                 customerResults.innerHTML = `
                     <li class="list-group-item text-muted">
-                        No customers found. You can enter details for a new customer.
+                        No customers found. You can enter details for a new customer below.
                     </li>`;
                 customerResults.style.display = "block";
             } else {
@@ -178,16 +178,16 @@
         // Clear customer ID as this will be a new customer
         customerIdInput.value = '';
 
-        // Enable and clear the name and phone inputs
+        // Enable name input for new customer
         customerNameInput.removeAttribute('readonly');
         customerPhoneInput.removeAttribute('readonly');
-
+        customerNameInput.value = '';
         // Set values from search if they match a phone pattern
         const searchValue = searchInput.value.trim();
         if (/^\d{10}$/.test(searchValue)) {
             customerPhoneInput.value = searchValue;
         } else {
-            customerNameInput.value = searchValue;
+            customerPhoneInput.value = searchValue;
         }
     }
 
@@ -207,31 +207,31 @@
             customerInfo.className = "customer-info";
             customerInfo.innerHTML = `
                 <strong>${customer.name}</strong><br>
-                <small>Phone: ${customer.phone_no} | Vehicle: ${customer.vehicle_registration_no}</small>
+                <small>Phone: ${customer.phone_no}</small>
             `;
             customerRow.appendChild(customerInfo);
 
-            // Add booking numbers if they exist
-            if (customer.booking_numbers && customer.booking_numbers.length > 0) {
-                const bookingsContainer = document.createElement("div");
-                bookingsContainer.className = "booking-numbers mt-2";
+            // // Add booking numbers if they exist
+            // if (customer.booking_numbers && customer.booking_numbers.length > 0) {
+            //     const bookingsContainer = document.createElement("div");
+            //     bookingsContainer.className = "booking-numbers mt-2";
 
-                customer.booking_numbers.forEach(booking => {
-                    const bookingRow = document.createElement("div");
-                    bookingRow.className = "booking-row";
-                    bookingRow.innerHTML = `
-                        <i class="fas fa-file-invoice me-2"></i>
-                        Booking: ${booking.number} | Amount: ₹${booking.amount.toLocaleString()} | Date: ${booking.date}
-                    `;
-                    bookingRow.addEventListener("click", (e) => {
-                        e.stopPropagation(); // Prevent triggering parent click
-                        selectCustomerWithBooking(customer, booking.number);
-                    });
-                    bookingsContainer.appendChild(bookingRow);
-                });
+            //     customer.booking_numbers.forEach(booking => {
+            //         const bookingRow = document.createElement("div");
+            //         bookingRow.className = "booking-row";
+            //         // bookingRow.innerHTML = `
+            //         //     <i class="fas fa-file-invoice me-2"></i>
+            //         //     Booking: ${booking.number} | Amount: ₹${booking.amount.toLocaleString()} | Date: ${booking.date}
+            //         // `;
+            //         bookingRow.addEventListener("click", (e) => {
+            //             e.stopPropagation(); // Prevent triggering parent click
+            //             selectCustomerWithBooking(customer, booking.number);
+            //         });
+            //         bookingsContainer.appendChild(bookingRow);
+            //     });
 
-                customerRow.appendChild(bookingsContainer);
-            }
+            //     customerRow.appendChild(bookingsContainer);
+            // }
 
             // Add click event for selecting just the customer
             customerInfo.addEventListener("click", () => selectCustomer(customer));
@@ -245,7 +245,7 @@
 // Function to handle customer selection with booking
 function selectCustomerWithBooking(customer, bookingNumber) {
     // Set customer details
-    searchInput.value = `${customer.name} - ${customer.phone_no} - ${customer.vehicle_registration_no}`;
+    searchInput.value = `${customer.phone_no}`;
     customerIdInput.value = customer.id;
     customerNameInput.value = customer.name;
     customerPhoneInput.value = customer.phone_no;
@@ -261,7 +261,7 @@ function selectCustomerWithBooking(customer, bookingNumber) {
 
 // Function to handle customer selection without booking
 function selectCustomer(customer) {
-    searchInput.value = `${customer.name} - ${customer.phone_no} - ${customer.vehicle_registration_no}`;
+    searchInput.value = `${customer.phone_no}`;
     customerIdInput.value = customer.id;
     customerNameInput.value = customer.name;
     customerPhoneInput.value = customer.phone_no;

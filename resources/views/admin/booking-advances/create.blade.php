@@ -12,10 +12,12 @@
       @csrf
 
       @include('admin.booking-advances._form')
-      <button type="submit" class="btn btn-info" id="saveGenerateButton" name="action" value="save_generate_receipt"
-        disabled>
-        {{ isset($bookingAdvance) ? 'Update and Generate Receipt' : 'Save and Generate Receipt' }}
-      </button>
+      <div style="visibility: hidden">
+        <button type="submit" class="btn btn-info" id="saveGenerateButton" name="action" value="save_generate_receipt"
+          disabled>
+          {{ isset($bookingAdvance) ? 'Update and Generate Receipt' : '' }}
+        </button>
+      </div>
     </form>
   </div>
 </div>
