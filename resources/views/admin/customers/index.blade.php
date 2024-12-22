@@ -67,7 +67,7 @@
         columns: [
             { data: 'name', name: 'name' },
             { data: 'phone_no', name: 'phone_no' },
-            { data: 'vehicle_registration_no', name: 'vehicle_registration_no' },
+            { data: 'pan_number', name: 'pan_number' },
             { data: 'created_at', name: 'created_at' },
             { data: 'actions', name: 'actions', orderable: false, searchable: false }
         ],

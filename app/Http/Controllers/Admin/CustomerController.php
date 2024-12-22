@@ -36,7 +36,7 @@ class CustomerController extends Controller
                 $query->where(function ($q) use ($searchValue) {
                     $q->where('name', 'like', "%{$searchValue}%")
                         ->orWhere('phone_no', 'like', "%{$searchValue}%")
-                        ->orWhere('vehicle_registration_no', 'like', "%{$searchValue}%");
+                        ->orWhere('pan_number', 'like', "%{$searchValue}%");
                 });
             }
             // Apply phone number filter if provided
@@ -50,13 +50,13 @@ class CustomerController extends Controller
                 $query->where(function ($q) use ($searchValue) {
                     $q->where('name', 'like', '%' . $searchValue . '%')
                         ->orWhere('phone_no', 'like', '%' . $searchValue . '%')
-                        ->orWhere('vehicle_registration_no', 'like', '%' . $searchValue . '%');
+                        ->orWhere('pan_number', 'like', '%' . $searchValue . '%');
                 });
             }
             // Handle column sorting
             $order = $request->get('order', []);
             if (!empty($order)) {
-                $columns = ['name', 'phone_no', 'vehicle_registration_no', 'created_at'];
+                $columns = ['name', 'phone_no', 'pan_number', 'created_at'];
                 $orderColumn = $order[0]['column'] ?? 0;
                 $orderDirection = $order[0]['dir'] ?? 'asc';
 
@@ -80,7 +80,7 @@ class CustomerController extends Controller
                     'id' => $row->id,
                     'name' => $row->name,
                     'phone_no' => $row->phone_no,
-                    'vehicle_registration_no' => $row->vehicle_registration_no,
+                    'pan_number' => $row->pan_number,
                     'created_at' => $row->created_at->format('M d, Y'),
                     'actions' => Blade::render('
                     <div class="btn-group">
@@ -107,8 +107,8 @@ class CustomerController extends Controller
             ->setOrderable('name')
             ->setSearchable('phone_no')
             ->setOrderable('phone_no')
-            ->setSearchable('vehicle_registration_no')
-            ->setOrderable('vehicle_registration_no')
+            ->setSearchable('pan_number')
+            ->setOrderable('pan_number')
             ->setName('created_at', 'Created at')
             ->removeColumns(['updated_at'])
             ->withActions()
@@ -250,7 +250,7 @@ class CustomerController extends Controller
         }])
             ->where('name', 'LIKE', "%{$query}%")
             ->orWhere('phone_no', 'LIKE', "%{$query}%")
-            ->orWhere('vehicle_registration_no', 'LIKE', "%{$query}%")
+            ->orWhere('pan_number', 'LIKE', "%{$query}%")
             ->take(10)
             ->get();
 
@@ -259,7 +259,7 @@ class CustomerController extends Controller
                 'id' => $customer->id,
                 'name' => $customer->name,
                 'phone_no' => $customer->phone_no,
-                'vehicle_registration_no' => $customer->vehicle_registration_no,
+                'pan_number' => $customer->pan_number,
                 'booking_numbers' => $customer->bookingAdvances->map(function ($booking) {
                     return [
                         'number' => $booking->order_booking_number,

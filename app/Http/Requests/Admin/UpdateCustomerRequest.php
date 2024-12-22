@@ -24,7 +24,7 @@ class UpdateCustomerRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'phone_no' => ['required', 'string', 'size:10', 'regex:/^[0-9]{10}$/', 'unique:customers,phone_no'],
-            'vehicle_registration_no' => ['required', 'string', 'max:255', 'unique:customers,vehicle_registration_no'],
+            'pan_number' => ['required', 'string', 'max:255', 'unique:customers,pan_number'],
         ];
     }
 }

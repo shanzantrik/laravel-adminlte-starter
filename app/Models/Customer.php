@@ -15,7 +15,7 @@ class Customer extends Model
     protected $fillable = [
         'name',
         'phone_no',
-        'vehicle_registration_no',
+        'pan_number',
     ];
     protected $dates = ['created_at', 'updated_at'];
     public function bookingAdvances()

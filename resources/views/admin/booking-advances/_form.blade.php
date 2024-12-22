@@ -33,6 +33,12 @@
         </div>
 
         <div class="form-group">
+            <label for="customer_pan_no">PAN Number</label>
+            <input type="text" id="customer_pan_no" name="customer_pan_no" class="form-control" readonly
+                value="{{ old('customer_pan_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->phone_no : '') }}">
+        </div>
+
+        <div class="form-group">
             <input type="hidden" id="customer_phone_no" name="customer_phone_no" class="form-control" readonly
                 value="{{ old('customer_phone_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->phone_no : '') }}">
         </div>
@@ -130,6 +136,7 @@
     const customerResults = document.getElementById("customer_results");
     const customerNameInput = document.getElementById("customer_name");
     const customerPhoneInput = document.getElementById("customer_phone_no");
+    const customerPanInput = document.getElementById("customer_pan_no");
     const customerIdInput = document.getElementById("customer_id");
 
     let debounceTimer;
@@ -181,6 +188,7 @@
         // Enable name input for new customer
         customerNameInput.removeAttribute('readonly');
         customerPhoneInput.removeAttribute('readonly');
+        customerPanInput.removeAttribute('readonly');
         customerNameInput.value = '';
         // Set values from search if they match a phone pattern
         const searchValue = searchInput.value.trim();
@@ -207,7 +215,7 @@
             customerInfo.className = "customer-info";
             customerInfo.innerHTML = `
                 <strong>${customer.name}</strong><br>
-                <small>Phone: ${customer.phone_no}</small>
+                <small>Phone: ${customer.phone_no} | PAN: ${customer.pan_number}</small>
             `;
             customerRow.appendChild(customerInfo);
 
@@ -249,7 +257,7 @@ function selectCustomerWithBooking(customer, bookingNumber) {
     customerIdInput.value = customer.id;
     customerNameInput.value = customer.name;
     customerPhoneInput.value = customer.phone_no;
-
+    customerPanInput.value = customer.pan_number;
     // Set booking number
     const bookingNumberInput = document.getElementById('order_booking_number');
     if (bookingNumberInput) {
@@ -265,7 +273,7 @@ function selectCustomer(customer) {
     customerIdInput.value = customer.id;
     customerNameInput.value = customer.name;
     customerPhoneInput.value = customer.phone_no;
-
+    customerPanInput.value = customer.pan_number;
     // Clear booking number if it exists
     const bookingNumberInput = document.getElementById('order_booking_number');
     if (bookingNumberInput) {

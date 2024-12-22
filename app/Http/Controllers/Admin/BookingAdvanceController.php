@@ -24,6 +24,11 @@ class BookingAdvanceController extends Controller
                 'regex:/^\d{10}$/',
                 Rule::unique('customers', 'phone_no')->ignore($request->customer_id),
             ],
+            'customer_pan_no' => [
+                'required_without:customer_id',
+                'string',
+                Rule::unique('customers', 'pan_number')->ignore($request->customer_id),
+            ],
             'order_booking_number' => 'required|string|max:255',
             'total_amount' => 'required|numeric|min:0',
             'sales_exec_name' => 'required|string|max:255',
@@ -78,6 +83,7 @@ class BookingAdvanceController extends Controller
                 $customer = Customer::create([
                     'name' => $request->customer_name,
                     'phone_no' => $request->customer_phone_no,
+                    'pan_number' => $request->customer_pan_no,
                 ]);
                 $request->merge(['customer_id' => $customer->id]);
             }

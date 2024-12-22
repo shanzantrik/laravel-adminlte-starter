@@ -17,12 +17,10 @@
 </div>
 
 <div class="form-group">
-  <label for="vehicle_registration_no">{{ __('Vehicle Registration No*') }}</label>
-  <input type="text" name="vehicle_registration_no"
-    class="form-control @error('vehicle_registration_no') is-invalid @enderror" id="vehicle_registration_no"
-    placeholder="Enter vehicle registration number"
-    value="{{ old('vehicle_registration_no', $customer->vehicle_registration_no ?? '') }}">
-  @error('vehicle_registration_no')
+  <label for="pan_number">{{ __('PAN Number*') }}</label>
+  <input type="text" name="pan_number" class="form-control @error('pan_number') is-invalid @enderror" id="pan_number"
+    placeholder="Enter PAN number" value="{{ old('pan_number', $customer->pan_number ?? '') }}">
+  @error('pan_number')
   <small class="error invalid-feedback" role="alert">{{ $message }}</small>
   @enderror
 </div>
