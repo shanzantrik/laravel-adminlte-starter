@@ -83,7 +83,6 @@ class BookingAdvanceController extends Controller
                 $customer = Customer::create([
                     'name' => $request->customer_name,
                     'phone_no' => $request->customer_phone_no,
-                    'pan_number' => $request->customer_pan_no,
                 ]);
                 $request->merge(['customer_id' => $customer->id]);
             }

@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PaymentCheque extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'payment_id',
+        'paymentmain_id',
         'cheque_number',
-        'cheque_date',
+        'cheque_date'
     ];
 
-    public function payment()
+    protected $casts = [
+        'cheque_date' => 'date'
+    ];
+
+    public function payment(): BelongsTo
     {
-        return $this->belongsTo(Paymentmain::class);
+        return $this->belongsTo(Paymentmain::class, 'paymentmain_id');
     }
 }

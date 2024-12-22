@@ -32,7 +32,9 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('booking-advances.receipt');
         Route::resource('new-vehicle-sales', NewVehicleSaleController::class);
     });
-    Route::resource('paymentsmain', PaymentMainController::class);
+    Route::resource('paymentsmain', PaymentMainController::class)->parameters([
+        'paymentsmain' => 'payment'
+    ]);
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');

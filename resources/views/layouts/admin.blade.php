@@ -288,7 +288,7 @@
 
                         <!-- Payments -->
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="{{ route('paymentsmain.create') }}" class="nav-link">
                                 <i class="nav-icon fas fa-money-bill-wave"></i>
                                 <p>{{ __('Payments') }}</p>
                             </a>

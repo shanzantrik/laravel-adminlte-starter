@@ -44,7 +44,7 @@ class PaymentMainController extends Controller
       if ($validated['payment_type'] === 'cheque' && isset($validated['cheques'])) {
         foreach ($validated['cheques'] as $cheque) {
           PaymentCheque::create([
-            'payment_id' => $payment->id, // Ensure correct foreign key
+            'paymentmain_id' => $payment->id,
             'cheque_number' => $cheque['number'],
             'cheque_date' => $cheque['date'],
           ]);
@@ -57,6 +57,7 @@ class PaymentMainController extends Controller
 
   public function edit(Paymentmain $payment)
   {
+    $payment->load('cheques');
     return view('paymentsmain.edit', compact('payment'));
   }
 
@@ -84,7 +85,7 @@ class PaymentMainController extends Controller
     if ($validated['payment_type'] === 'cheque' && isset($validated['cheques'])) {
       foreach ($validated['cheques'] as $cheque) {
         PaymentCheque::create([
-          'payment_id' => $payment->id,
+          'paymentmain_id' => $payment->id,
           'cheque_number' => $cheque['number'],
           'cheque_date' => $cheque['date'],
         ]);

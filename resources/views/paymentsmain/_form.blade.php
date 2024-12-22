@@ -1,54 +1,89 @@
+<div class="row mb-3">
+  <div class="col-md-12">
+    <div class="float-right">
+      <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item">
+          <a href="{{ route('paymentsmain.index') }}" class="text-decoration-none">
+            <i class="fas fa-list"></i> View All Payments
+          </a>
+        </li>
+      </ol>
+    </div>
+  </div>
+</div>
 <div class="container mt-4">
   <form method="POST" action="{{ route('paymentsmain.store') }}">
     @csrf
 
     <!-- Payment Type Dropdown -->
     <div class="form-group">
-      <label for="payment_type"><strong>Payment Type:</strong></label>
-      <select id="payment_type" name="payment_type" class="form-control" required>
-        <option value="">Select</option>
-        <option value="cash">Cash</option>
-        <option value="cheque">Cheque</option>
+      <label for="payment_type">Payment Type</label>
+      <select name="payment_type" id="payment_type" class="form-control" required>
+        <option value="">Select Payment Type</option>
+        <option value="cash" {{ old('payment_type', $payment->payment_type ?? '') == 'cash' ? 'selected' : '' }}>Cash
+        </option>
+        <option value="cheque" {{ old('payment_type', $payment->payment_type ?? '') == 'cheque' ? 'selected' : ''
+          }}>Cheque</option>
       </select>
     </div>
 
     <!-- Amount Input -->
     <div class="form-group">
-      <label for="amount"><strong>Amount:</strong></label>
-      <input type="number" id="amount" name="amount" class="form-control" placeholder="Enter Amount" required>
+      <label for="amount">Amount</label>
+      <input type="number" step="0.01" name="amount" id="amount" class="form-control"
+        value="{{ old('amount', $payment->amount ?? '') }}" required>
     </div>
 
     <!-- Cash Denominations Section -->
     <div id="cash_section" style="display: none;">
-      <label><strong>Denomination:</strong></label>
-      <div class="row">
-        <div class="col"><input type="number" name="denominations[x2000]" placeholder="x2000" class="form-control">
+      <div class="form-group">
+        <label>Denominations</label>
+        @php
+        $denominations = old('denominations', $payment->denominations ?? []);
+        @endphp
+        @foreach(['2000', '500', '200', '100', '50', '20', '10', '5', '2', '1'] as $value)
+        <div class="input-group mb-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text">₹{{ $value }}</span>
+          </div>
+          <input type="number" name="denominations[{{ $value }}]" class="form-control denomination-input"
+            value="{{ $denominations[$value] ?? '' }}" min="0">
         </div>
-        <div class="col"><input type="number" name="denominations[x500]" placeholder="x500" class="form-control"></div>
-        <div class="col"><input type="number" name="denominations[x200]" placeholder="x200" class="form-control"></div>
-        <div class="col"><input type="number" name="denominations[x100]" placeholder="x100" class="form-control"></div>
-      </div>
-      <div class="row mt-2">
-        <div class="col"><input type="number" name="denominations[x50]" placeholder="x50" class="form-control"></div>
-        <div class="col"><input type="number" name="denominations[x20]" placeholder="x20" class="form-control"></div>
-        <div class="col"><input type="number" name="denominations[x10]" placeholder="x10" class="form-control"></div>
-        <div class="col"><input type="number" name="denominations[coins]" placeholder="Coins" class="form-control">
-        </div>
+        @endforeach
       </div>
     </div>
 
-    <!-- Cheque Inputs Section -->
+    <!-- Cheque Section -->
     <div id="cheque_section" style="display: none;">
-      <label for="no_of_cheques"><strong>No. of Cheques:</strong></label>
-      <input type="number" id="no_of_cheques" name="no_of_cheques" class="form-control mb-2"
-        placeholder="Enter number of cheques">
+      <div class="form-group">
+        <label for="no_of_cheques">Number of Cheques</label>
+        <input type="number" name="no_of_cheques" id="no_of_cheques" class="form-control"
+          value="{{ old('no_of_cheques', $payment->no_of_cheques ?? '') }}" min="1">
+      </div>
 
-      <!-- Dynamic Cheque Input Boxes -->
-      <div id="cheque_boxes"></div>
+      <div id="cheques_container">
+        @if(isset($payment) && $payment->cheques)
+        @foreach($payment->cheques as $index => $cheque)
+        <div class="cheque-entry border p-3 mb-2">
+          <h5>Cheque #{{ $index + 1 }}</h5>
+          <div class="form-group">
+            <label>Cheque Number</label>
+            <input type="text" name="cheques[{{ $index }}][number]" class="form-control"
+              value="{{ $cheque->cheque_number }}" required>
+          </div>
+          <div class="form-group">
+            <label>Cheque Date</label>
+            <input type="date" name="cheques[{{ $index }}][date]" class="form-control"
+              value="{{ $cheque->cheque_date->format('Y-m-d') }}" required>
+          </div>
+        </div>
+        @endforeach
+        @endif
+      </div>
     </div>
 
     <!-- Submit Button -->
-    <button type="submit" class="btn btn-primary mt-3">SUBMIT</button>
+    {{-- <button type="submit" class="btn btn-primary mt-3">SUBMIT</button> --}}
   </form>
 </div>
 

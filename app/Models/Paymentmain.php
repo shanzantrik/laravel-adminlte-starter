@@ -2,26 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Paymentmain extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'payment_type',
         'amount',
         'denominations',
-        'no_of_cheques',
+        'no_of_cheques'
     ];
 
     protected $casts = [
-        'denominations' => 'array',
+        'denominations' => 'array'
     ];
 
-    public function cheques()
+    public function cheques(): HasMany
     {
-        return $this->hasMany(PaymentCheque::class);
+        return $this->hasMany(PaymentCheque::class, 'paymentmain_id');
     }
 }
