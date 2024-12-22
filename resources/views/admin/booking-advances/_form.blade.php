@@ -16,29 +16,6 @@
     <div class="col-md-8">
         <!-- Customer and Booking Details -->
 
-        {{-- <div class="form-group">
-            <label for="customer_search">{{ __('Search Customer by Phone Number or Vehicle Registration*') }}</label>
-            <div class="input-group">
-                <input type="text" id="customer_search" class="form-control"
-                    placeholder="Enter phone number or vehicle registration" autocomplete="off">
-                <div class="input-group-append">
-                    <button type="button" id="customer_search_button" class="btn btn-primary">Search</button>
-                    <a href="{{ url('/admin/customers/create') }}" class="btn btn-success ml-2">Add New Customer</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="customer_id">{{ __('Select Customer') }}</label>
-            <select name="customer_id" id="customer_id" class="form-control @error('customer_id') is-invalid @enderror"
-                onchange="handleCustomerSelection(this.value)" {{ isset($bookingAdvance) ? 'disabled' : '' }}>
-                <option value="">{{ __('Select Customer') }}</option>
-                <!-- Options will be loaded dynamically based on search -->
-            </select>
-            @error('customer_id')
-            <small class="error invalid-feedback" role="alert">{{ $message }}</small>
-            @enderror
-        </div> --}}
         <div class="form-group position-relative">
             <label for="customer_search">Search Phone Number</label>
             <input type="text" id="customer_search" class="form-control"
@@ -51,15 +28,15 @@
 
         <div class="form-group">
             <label for="customer_name">Customer Name</label>
-            <input type="text" id="customer_name" class="form-control"
+            <input type="text" id="customer_name" name="customer_name" class="form-control" readonly
                 value="{{ old('customer_name', isset($bookingAdvance->customer) ? $bookingAdvance->customer->name : '') }}">
         </div>
+
         <div class="form-group">
             <label for="customer_phone_no">Phone Number</label>
-            <input type="text" id="customer_phone_no" class="form-control"
+            <input type="text" id="customer_phone_no" name="customer_phone_no" class="form-control" readonly
                 value="{{ old('customer_phone_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->phone_no : '') }}">
         </div>
-
 
         <div class="form-group">
             <label for="order_booking_number">{{ __('Order Booking Number*') }}</label>
@@ -181,8 +158,37 @@
             }
         })
         .then(response => response.json())
-        .then(data => displayResults(data))
+        .then(data => {
+            if (data.length === 0) {
+                // If no customers found, enable manual input
+                enableManualInput();
+                customerResults.innerHTML = `
+                    <li class="list-group-item text-muted">
+                        No customers found. You can enter details for a new customer.
+                    </li>`;
+                customerResults.style.display = "block";
+            } else {
+                displayResults(data);
+            }
+        })
         .catch(error => console.error("Error fetching customers:", error));
+    }
+
+    function enableManualInput() {
+        // Clear customer ID as this will be a new customer
+        customerIdInput.value = '';
+
+        // Enable and clear the name and phone inputs
+        customerNameInput.removeAttribute('readonly');
+        customerPhoneInput.removeAttribute('readonly');
+
+        // Set values from search if they match a phone pattern
+        const searchValue = searchInput.value.trim();
+        if (/^\d{10}$/.test(searchValue)) {
+            customerPhoneInput.value = searchValue;
+        } else {
+            customerNameInput.value = searchValue;
+        }
     }
 
     // Function to display autocomplete results
