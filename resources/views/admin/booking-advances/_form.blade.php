@@ -140,6 +140,8 @@
     const customerIdInput = document.getElementById("customer_id");
 
     let debounceTimer;
+    let selectedIndex = -1;
+    let currentResults = [];
 
     // Event listener for input field
     searchInput.addEventListener("input", function () {
@@ -201,137 +203,178 @@
 
     // Function to display autocomplete results
     function displayResults(customers) {
-        customerResults.innerHTML = ""; // Clear existing results
+        currentResults = customers; // Store current results for Enter key selection
+        selectedIndex = -1; // Reset selection
+        customerResults.innerHTML = "";
+
         if (customers.length === 0) {
             customerResults.innerHTML = `<li class="list-group-item text-muted">No customers found</li>`;
         } else {
-        customers.forEach(customer => {
-            // Main customer row
-            const customerRow = document.createElement("li");
-            customerRow.className = "list-group-item list-group-item-action customer-row";
+            customers.forEach((customer, index) => {
+                const customerRow = document.createElement("li");
+                customerRow.className = "list-group-item list-group-item-action customer-row";
 
-            // Customer info
-            const customerInfo = document.createElement("div");
-            customerInfo.className = "customer-info";
-            customerInfo.innerHTML = `
-                <strong>${customer.name}</strong><br>
-                <small>Phone: ${customer.phone_no} | PAN: ${customer.pan_number}</small>
-            `;
-            customerRow.appendChild(customerInfo);
+                // Customer info
+                const customerInfo = document.createElement("div");
+                customerInfo.className = "customer-info";
+                customerInfo.innerHTML = `
+                    <strong>${customer.name}</strong><br>
+                    <small>Phone: ${customer.phone_no} | PAN: ${customer.pan_number}</small>
+                `;
 
-            // // Add booking numbers if they exist
-            // if (customer.booking_numbers && customer.booking_numbers.length > 0) {
-            //     const bookingsContainer = document.createElement("div");
-            //     bookingsContainer.className = "booking-numbers mt-2";
+                customerRow.appendChild(customerInfo);
 
-            //     customer.booking_numbers.forEach(booking => {
-            //         const bookingRow = document.createElement("div");
-            //         bookingRow.className = "booking-row";
-            //         // bookingRow.innerHTML = `
-            //         //     <i class="fas fa-file-invoice me-2"></i>
-            //         //     Booking: ${booking.number} | Amount: ₹${booking.amount.toLocaleString()} | Date: ${booking.date}
-            //         // `;
-            //         bookingRow.addEventListener("click", (e) => {
-            //             e.stopPropagation(); // Prevent triggering parent click
-            //             selectCustomerWithBooking(customer, booking.number);
-            //         });
-            //         bookingsContainer.appendChild(bookingRow);
-            //     });
+                // Add click event for selecting customer
+                customerRow.addEventListener("click", () => selectCustomer(customer));
 
-            //     customerRow.appendChild(bookingsContainer);
-            // }
+                // Add mouseover event to update selection
+                customerRow.addEventListener("mouseover", () => {
+                    selectedIndex = index;
+                    updateSelection(customerResults.getElementsByClassName('customer-row'));
+                });
 
-            // Add click event for selecting just the customer
-            customerInfo.addEventListener("click", () => selectCustomer(customer));
+                customerResults.appendChild(customerRow);
+            });
+        }
+        customerResults.style.display = "block";
+    }
 
-            customerResults.appendChild(customerRow);
+    // Function to handle customer selection with booking
+    function selectCustomerWithBooking(customer, bookingNumber) {
+        // Set customer details
+        searchInput.value = `${customer.phone_no}`;
+        customerIdInput.value = customer.id;
+        customerNameInput.value = customer.name;
+        customerPhoneInput.value = customer.phone_no;
+        customerPanInput.value = customer.pan_number;
+        // Set booking number
+        const bookingNumberInput = document.getElementById('order_booking_number');
+        if (bookingNumberInput) {
+            bookingNumberInput.value = bookingNumber;
+        }
+
+        customerResults.style.display = "none";
+    }
+
+    // Function to handle customer selection without booking
+    function selectCustomer(customer) {
+        searchInput.value = `${customer.phone_no}`;
+        customerIdInput.value = customer.id;
+        customerNameInput.value = customer.name;
+        customerPhoneInput.value = customer.phone_no;
+        customerPanInput.value = customer.pan_number;
+        // Clear booking number if it exists
+        const bookingNumberInput = document.getElementById('order_booking_number');
+        if (bookingNumberInput) {
+            bookingNumberInput.value = '';
+        }
+
+        customerResults.style.display = "none";
+    }
+
+    // Update the styles
+    const style = document.createElement('style');
+    style.textContent = `
+        #customer_results {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .customer-row {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .customer-info {
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .customer-info:hover {
+            background-color: #f8f9fa;
+        }
+
+        .booking-numbers {
+            border-top: 1px dashed #dee2e6;
+            margin-top: 5px;
+            padding-top: 5px;
+        }
+
+        .booking-row {
+            padding: 5px 10px;
+            margin: 2px 0;
+            cursor: pointer;
+            color: #0056b3;
+            font-size: 0.9em;
+            border-radius: 3px;
+        }
+
+        .booking-row:hover {
+            background-color: #e9ecef;
+        }
+
+        .booking-row i {
+            color: #6c757d;
+        }
+
+        .customer-row.active {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Add keydown event listener for keyboard navigation
+    searchInput.addEventListener('keydown', function(e) {
+        const items = customerResults.getElementsByClassName('customer-row');
+
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                if (selectedIndex < items.length - 1) {
+                    selectedIndex++;
+                    updateSelection(items);
+                }
+                break;
+
+            case 'ArrowUp':
+                e.preventDefault();
+                if (selectedIndex > 0) {
+                    selectedIndex--;
+                    updateSelection(items);
+                }
+                break;
+
+            case 'Enter':
+                e.preventDefault();
+                if (selectedIndex >= 0 && selectedIndex < currentResults.length) {
+                    selectCustomer(currentResults[selectedIndex]);
+                }
+                break;
+
+            case 'Escape':
+                customerResults.style.display = 'none';
+                selectedIndex = -1;
+                break;
+        }
+    });
+
+    // Function to update the visual selection
+    function updateSelection(items) {
+        Array.from(items).forEach((item, index) => {
+            if (index === selectedIndex) {
+                item.classList.add('active');
+                // Ensure the selected item is visible in the scroll view
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.classList.remove('active');
+            }
         });
     }
-    customerResults.style.display = "block";
-}
 
-// Function to handle customer selection with booking
-function selectCustomerWithBooking(customer, bookingNumber) {
-    // Set customer details
-    searchInput.value = `${customer.phone_no}`;
-    customerIdInput.value = customer.id;
-    customerNameInput.value = customer.name;
-    customerPhoneInput.value = customer.phone_no;
-    customerPanInput.value = customer.pan_number;
-    // Set booking number
-    const bookingNumberInput = document.getElementById('order_booking_number');
-    if (bookingNumberInput) {
-        bookingNumberInput.value = bookingNumber;
-    }
-
-    customerResults.style.display = "none";
-}
-
-// Function to handle customer selection without booking
-function selectCustomer(customer) {
-    searchInput.value = `${customer.phone_no}`;
-    customerIdInput.value = customer.id;
-    customerNameInput.value = customer.name;
-    customerPhoneInput.value = customer.phone_no;
-    customerPanInput.value = customer.pan_number;
-    // Clear booking number if it exists
-    const bookingNumberInput = document.getElementById('order_booking_number');
-    if (bookingNumberInput) {
-        bookingNumberInput.value = '';
-    }
-
-    customerResults.style.display = "none";
-}
-
-// Update the styles
-const style = document.createElement('style');
-style.textContent = `
-    #customer_results {
-        max-height: 300px;
-        overflow-y: auto;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .customer-row {
-        padding: 10px;
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .customer-info {
-        cursor: pointer;
-        padding: 5px;
-    }
-
-    .customer-info:hover {
-        background-color: #f8f9fa;
-    }
-
-    .booking-numbers {
-        border-top: 1px dashed #dee2e6;
-        margin-top: 5px;
-        padding-top: 5px;
-    }
-
-    .booking-row {
-        padding: 5px 10px;
-        margin: 2px 0;
-        cursor: pointer;
-        color: #0056b3;
-        font-size: 0.9em;
-        border-radius: 3px;
-    }
-
-    .booking-row:hover {
-        background-color: #e9ecef;
-    }
-
-    .booking-row i {
-        color: #6c757d;
-    }
-`;
-document.head.appendChild(style);
     // Hide results on click outside
     document.addEventListener("click", function (e) {
         if (!customerResults.contains(e.target) && e.target !== searchInput) {
