@@ -1,17 +1,3 @@
-<div class="row mb-3">
-    <div class="col-md-12">
-        <div class="float-right">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item">
-                    <a href="{{ route('admin.booking-advances.index') }}" class="text-decoration-none">
-                        <i class="fas fa-list"></i> View All Booking Advances
-                    </a>
-                </li>
-            </ol>
-        </div>
-    </div>
-</div>
-
 <div class="row">
     <div class="col-md-8">
         <!-- Phone Number Search - Full Width -->

@@ -6,11 +6,19 @@
 <div class="card mt-3">
   <div class="card-header">
     <h3 class="card-title">Add a New Booking Advance</h3>
+    <div class="float-right">
+      <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item">
+          <a href="{{ route('admin.booking-advances.index') }}" class="text-decoration-none">
+            <i class="fas fa-list"></i> View All Booking Advances
+          </a>
+        </li>
+      </ol>
+    </div>
   </div>
   <div class="card-body">
     <form action="{{ route('admin.booking-advances.store') }}" method="POST">
       @csrf
-
       @include('admin.booking-advances._form')
       <div style="visibility: hidden">
         <button type="submit" class="btn btn-info" id="saveGenerateButton" name="action" value="save_generate_receipt"
