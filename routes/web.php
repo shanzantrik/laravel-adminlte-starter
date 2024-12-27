@@ -31,6 +31,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('booking-advances/{bookingAdvance}/receipt', [BookingAdvanceController::class, 'receipt'])
             ->name('booking-advances.receipt');
         Route::resource('new-vehicle-sales', NewVehicleSaleController::class);
+        Route::get('new-vehicle-sales/{newVehicleSale}/receipt', [NewVehicleSaleController::class, 'receipt'])
+            ->name('new-vehicle-sales.receipt');
     });
     Route::resource('paymentsmain', PaymentMainController::class)->parameters([
         'paymentsmain' => 'payment'
