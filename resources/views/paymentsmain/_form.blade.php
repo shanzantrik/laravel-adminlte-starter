@@ -55,9 +55,10 @@
 
     <!-- Cheque Section -->
     <div id="cheque_section" style="display: none;">
+      <div id="cheque_boxes"></div>
       <div class="form-group">
         <label for="no_of_cheques">Number of Cheques</label>
-        <input type="number" name="no_of_cheques" id="no_of_cheques" class="form-control"
+        <input type="number" name="no_of_cheques" id="no_of_cheques" class="form-control mb2"
           value="{{ old('no_of_cheques', $payment->no_of_cheques ?? '') }}" min="1">
       </div>
 
@@ -83,7 +84,7 @@
     </div>
 
     <!-- Submit Button -->
-    {{-- <button type="submit" class="btn btn-primary mt-3">SUBMIT</button> --}}
+    <button type="submit" class="btn btn-primary mt-3">SUBMIT</button>
   </form>
 </div>
 

@@ -10,7 +10,7 @@
 
     @include('paymentsmain._form')
 
-    <button type="submit" class="btn btn-success mt-3">{{ isset($payment) ? 'Update' : 'Submit' }}</button>
+    {{-- <button type="submit" class="btn btn-success mt-3">{{ isset($payment) ? 'Update' : 'Submit' }}</button> --}}
   </form>
 </div>
 @endsection

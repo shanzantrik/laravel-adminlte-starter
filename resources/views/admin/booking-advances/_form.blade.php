@@ -14,57 +14,65 @@
 
 <div class="row">
     <div class="col-md-8">
-        <!-- Customer and Booking Details -->
-
+        <!-- Phone Number Search - Full Width -->
         <div class="form-group position-relative">
             <label for="customer_search">Phone Number</label>
             <input type="text" id="customer_search" class="form-control"
                 placeholder="Search customer by phone number by entering first 3 digits or more">
             <input type="hidden" id="customer_id" name="customer_id">
-            <!-- Results List -->
+            <input type="hidden" id="customer_phone_no" name="customer_phone_no"
+                value="{{ old('customer_phone_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->phone_no : '') }}">
             <ul id="customer_results" class="list-group position-absolute w-100" style="z-index: 1000; display: none;">
             </ul>
         </div>
 
-        <div class="form-group">
-            <label for="customer_name">Customer Name</label>
-            <input type="text" id="customer_name" name="customer_name" class="form-control" readonly
-                value="{{ old('customer_name', isset($bookingAdvance->customer) ? $bookingAdvance->customer->name : '') }}">
+        <!-- Customer Name and PAN in one row -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="customer_name">Customer Name</label>
+                    <input type="text" id="customer_name" name="customer_name" class="form-control" readonly
+                        value="{{ old('customer_name', isset($bookingAdvance->customer) ? $bookingAdvance->customer->name : '') }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="customer_pan_no">PAN Number</label>
+                    <input type="text" id="customer_pan_no" name="customer_pan_no" class="form-control" readonly
+                        value="{{ old('customer_pan_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->pan_number : '') }}">
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="customer_pan_no">PAN Number</label>
-            <input type="text" id="customer_pan_no" name="customer_pan_no" class="form-control" readonly
-                value="{{ old('customer_pan_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->phone_no : '') }}">
+        <!-- Booking Number and Sales Executive in one row -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="order_booking_number">{{ __('Order Booking Number*') }}</label>
+                    <input type="text" name="order_booking_number"
+                        class="form-control @error('order_booking_number') is-invalid @enderror"
+                        id="order_booking_number" placeholder="Enter booking number"
+                        value="{{ old('order_booking_number', $bookingAdvance->order_booking_number ?? '') }}" required>
+                    @error('order_booking_number')
+                    <small class="error invalid-feedback" role="alert">{{ $message }}</small>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="sales_exec_name">{{ __('Sales Executive Name') }}</label>
+                    <input type="text" name="sales_exec_name"
+                        class="form-control @error('sales_exec_name') is-invalid @enderror" id="sales_exec_name"
+                        placeholder="Enter Sales Executive Name"
+                        value="{{ old('sales_exec_name', $bookingAdvance->sales_exec_name ?? '') }}" required>
+                    @error('sales_exec_name')
+                    <small class="error invalid-feedback" role="alert">{{ $message }}</small>
+                    @enderror
+                </div>
+            </div>
         </div>
 
-        <div class="form-group">
-            <input type="hidden" id="customer_phone_no" name="customer_phone_no" class="form-control" readonly
-                value="{{ old('customer_phone_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->phone_no : '') }}">
-        </div>
-
-        <div class="form-group">
-            <label for="order_booking_number">{{ __('Order Booking Number*') }}</label>
-            <input type="text" name="order_booking_number"
-                class="form-control @error('order_booking_number') is-invalid @enderror" id="order_booking_number"
-                placeholder="Enter booking number"
-                value="{{ old('order_booking_number', $bookingAdvance->order_booking_number ?? '') }}" required>
-            @error('order_booking_number')
-            <small class="error invalid-feedback" role="alert">{{ $message }}</small>
-            @enderror
-        </div>
-
-        <div class="form-group">
-            <label for="sales_exec_name">{{ __('Sales Executive Name') }}</label>
-            <input type="text" name="sales_exec_name"
-                class="form-control @error('sales_exec_name') is-invalid @enderror" id="sales_exec_name"
-                placeholder="Enter Sales Executive Name"
-                value="{{ old('sales_exec_name', $bookingAdvance->sales_exec_name ?? '') }}" required>
-            @error('sales_exec_name')
-            <small class="error invalid-feedback" role="alert">{{ $message }}</small>
-            @enderror
-        </div>
-
+        <!-- Total Amount - Full Width -->
         <div class="form-group">
             <label for="total_amount">{{ __('Total Amount*') }}</label>
             <input type="number" step="0.01" name="total_amount"
@@ -294,7 +302,7 @@
         }
 
         .customer-info:hover {
-            background-color: #f8f9fa;
+            background-color: #a11c2d;
         }
 
         .booking-numbers {
@@ -313,7 +321,7 @@
         }
 
         .booking-row:hover {
-            background-color: #e9ecef;
+            background-color: #a11c2d;
         }
 
         .booking-row i {
@@ -321,7 +329,7 @@
         }
 
         .customer-row.active {
-            background-color: #e9ecef;
+            background-color: #a11c2d;
             border-color: #dee2e6;
         }
     `;
