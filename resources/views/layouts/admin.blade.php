@@ -178,15 +178,16 @@
                                         @endpermission
 
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.new-vehicle-sales.create') }}"
-                                                class="nav-link {{ Request::is('admin/new-vehicle-sales*') ? 'active' : '' }}">
-                                                <i class="fa fa-car  nav-icon"></i>
-                                                <p>{{ __('New Vehicle Sales') }}</p>
+                                            <a href="{{ route('admin.new-vehicle-sales.index') }}"
+                                                class="nav-link {{ request()->routeIs('admin.new-vehicle-sales.*') ? 'active' : '' }}">
+                                                <i class="nav-icon fas fa-car"></i>
+                                                <p>New Vehicle Sales</p>
                                             </a>
                                         </li>
 
                                         <li class="nav-item">
-                                            <a href="#" class="nav-link">
+                                            <a href="{{ route('admin.vas-invoices.index') }}"
+                                                class="nav-link {{ request()->routeIs('admin.vas-invoices.*') ? 'active' : '' }}">
                                                 <i class="fa fa-file nav-icon"></i>
                                                 <p>{{ __('VAS Invoice') }}</p>
                                             </a>
@@ -204,7 +205,8 @@
                                     </a>
                                     <ul class="nav nav-treeview">
                                         <li class="nav-item">
-                                            <a href="#" class="nav-link">
+                                            <a href="{{ route('admin.job-advances.index') }}"
+                                                class="nav-link {{ request()->routeIs('admin.job-advances.*') ? 'active' : '' }}">
                                                 <i class="fas fa-tools nav-icon"></i>
                                                 <p>{{ __('Job Advance') }}</p>
                                             </a>

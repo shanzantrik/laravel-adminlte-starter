@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 
-class NewVehicleSale extends Model
+class VasInvoice extends Model
 {
   use HasFactory, Notifiable;
+
   protected $fillable = [
     'invoice_number',
     'order_booking_number',
@@ -20,6 +21,7 @@ class NewVehicleSale extends Model
     'amount_paid',
     'balance'
   ];
+
   protected $casts = [
     'total_amount' => 'decimal:2',
     'created_at' => 'datetime',
@@ -30,15 +32,9 @@ class NewVehicleSale extends Model
   {
     return $this->belongsTo(Customer::class);
   }
-  public function toArray()
-  {
-    $array = parent::toArray();
-    $array['customer'] = $this->customer ? $this->customer->name : 'N/A';
-    return $array;
-  }
 
   public function payments()
   {
-    return $this->hasMany(PaymentNewVehicle::class);
+    return $this->hasMany(PaymentVasInvoice::class);
   }
 }

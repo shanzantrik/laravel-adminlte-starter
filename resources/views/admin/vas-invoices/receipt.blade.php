@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Receipt #{{ $newVehicleSale->id }}</title>
+  <title>Receipt #{{ $vasInvoice->id }}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -66,15 +66,15 @@
     </div>
 
     <div class="receipt-details">
-      <strong>Receipt No. {{ date('Y') . sprintf('%08d', $newVehicleSale->id) }}</strong><br>
+      <strong>Receipt No. {{ date('Y') . sprintf('%08d', $vasInvoice->id) }}</strong><br>
       Date: {{ date('d-m-Y') }}
     </div>
 
     <div class="content">
-      Received with thanks from {{ $newVehicleSale->customer->name }} an amount of ₹{{
-      number_format($newVehicleSale->amount_paid, 2) }}
-      (in words Rupees {{ ucwords($amountInWords) }} only) against New Vehicle Sale vide
-      @foreach($newVehicleSale->payments as $payment)
+      Received with thanks from {{ $vasInvoice->customer->name }} an amount of ₹{{
+      number_format($vasInvoice->amount_paid, 2) }}
+      (in words Rupees {{ ucwords($amountInWords) }} only) against VAS Invoice vide
+      @foreach($vasInvoice->payments as $payment)
       {{ ucwords(str_replace('_', ' ', $payment->payment_by)) }}: ₹{{ number_format($payment->amount, 2) }}
       @if(!$loop->last), @endif
       @endforeach

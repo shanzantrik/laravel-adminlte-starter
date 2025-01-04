@@ -17,40 +17,22 @@
     </div>
   </div>
   <div class="card-body">
-    <form action="{{ route('admin.new-vehicle-sales.store') }}" method="POST">
+    <form action="{{ route('admin.new-vehicle-sales.store') }}" method="POST" id="sale-form">
       @csrf
       @include('admin.new-vehicle-sales._form')
-      <div style="visibility: hidden">
-        <button type="submit" class="btn btn-info" id="saveGenerateButton" name="action" value="save_generate_receipt"
-          disabled>
-          {{ isset($newVehicleSale) ? 'Update and Generate Receipt' : '' }}
-        </button>
-      </div>
     </form>
   </div>
 </div>
-<script>
-  document.getElementById('booking-form').addEventListener('submit', function (event) {
-    event.preventDefault(); // Prevent default form submission
-    const form = event.target;
 
-    fetch(form.action, {
-        method: form.method,
-        body: new FormData(form),
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.open(data.receipt_url, '_blank');
-            window.location.href = data.index_url;
-        } else {
-            alert('There was an error processing your request.');
-        }
-    })
-    .catch(error => console.error('Error:', error));
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add initial payment row
+    if (document.getElementById('paymentsContainer').children.length === 0) {
+        addPaymentRow();
+    }
+
+    // Update payment summary
+    updatePaymentSummary();
 });
 </script>
 @endsection

@@ -7,7 +7,7 @@
                 placeholder="Search customer by phone number by entering first 3 digits or more">
             <input type="hidden" id="customer_id" name="customer_id">
             <input type="hidden" id="customer_phone_no" name="customer_phone_no"
-                value="{{ old('customer_phone_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->phone_no : '') }}">
+                value="{{ old('customer_phone_no', isset($newVehicleSale->customer) ? $newVehicleSale->customer->phone_no : '') }}">
             <ul id="customer_results" class="list-group position-absolute w-100" style="z-index: 1000; display: none;">
             </ul>
         </div>
@@ -18,14 +18,14 @@
                 <div class="form-group">
                     <label for="customer_name">Customer Name</label>
                     <input type="text" id="customer_name" name="customer_name" class="form-control" readonly
-                        value="{{ old('customer_name', isset($bookingAdvance->customer) ? $bookingAdvance->customer->name : '') }}">
+                        value="{{ old('customer_name', isset($newVehicleSale->customer) ? $newVehicleSale->customer->name : '') }}">
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="customer_pan_no">PAN Number</label>
                     <input type="text" id="customer_pan_no" name="customer_pan_no" class="form-control" readonly
-                        value="{{ old('customer_pan_no', isset($bookingAdvance->customer) ? $bookingAdvance->customer->pan_number : '') }}">
+                        value="{{ old('customer_pan_no', isset($newVehicleSale->customer) ? $newVehicleSale->customer->pan_number : '') }}">
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
                     <input type="text" name="order_booking_number"
                         class="form-control @error('order_booking_number') is-invalid @enderror"
                         id="order_booking_number" placeholder="Enter booking number"
-                        value="{{ old('order_booking_number', $bookingAdvance->order_booking_number ?? '') }}" required>
+                        value="{{ old('order_booking_number', $newVehicleSale->order_booking_number ?? '') }}" required>
                     @error('order_booking_number')
                     <small class="error invalid-feedback" role="alert">{{ $message }}</small>
                     @enderror
@@ -46,11 +46,22 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="sales_exec_name">{{ __('So Name') }}</label>
-                    <input type="text" name="sales_exec_name"
-                        class="form-control @error('so_name') is-invalid @enderror" id="so_name"
-                        placeholder="Enter So Name" value="{{ old('so_name', $newVehicleSale->so_name ?? '') }}"
-                        required>
+                    <label for="invoice_number">{{ __('Invoice Number*') }}</label>
+                    <input type="text" name="invoice_number"
+                        class="form-control @error('invoice_number') is-invalid @enderror" id="invoice_number"
+                        placeholder="Enter invoice number"
+                        value="{{ old('invoice_number', $newVehicleSale->invoice_number ?? '') }}" required>
+                    @error('invoice_number')
+                    <small class="error invalid-feedback" role="alert">{{ $message }}</small>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="so_name">{{ __('So Name') }}</label>
+                    <input type="text" name="so_name" class="form-control @error('so_name') is-invalid @enderror"
+                        id="so_name" placeholder="Enter So Name"
+                        value="{{ old('so_name', $newVehicleSale->so_name ?? '') }}" required>
                     @error('so_name')
                     <small class="error invalid-feedback" role="alert">{{ $message }}</small>
                     @enderror
@@ -63,7 +74,7 @@
             <label for="total_amount">{{ __('Total Amount*') }}</label>
             <input type="number" step="0.01" name="total_amount"
                 class="form-control @error('total_amount') is-invalid @enderror" id="total_amount"
-                placeholder="Enter total amount" value="{{ old('total_amount', $bookingAdvance->total_amount ?? '') }}"
+                placeholder="Enter total amount" value="{{ old('total_amount', $newVehicleSale->total_amount ?? '') }}"
                 required>
             @error('total_amount')
             <small class="error invalid-feedback" role="alert">{{ $message }}</small>
@@ -82,10 +93,15 @@
 
         <!-- Form Buttons -->
         <div class="form-group d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-primary" id="saveButton" disabled>
-                {{ isset($bookingAdvance) ? 'Update' : 'Save' }}
-            </button>
-            <a href="{{ route('admin.booking-advances.index') }}" class="btn btn-secondary">Cancel</a>
+            <div>
+                <button type="submit" class="btn btn-primary" name="action" value="save">
+                    {{ isset($newVehicleSale) ? 'Update' : 'Save' }}
+                </button>
+                <button type="submit" class="btn btn-info" name="action" value="save_generate_receipt">
+                    {{ isset($newVehicleSale) ? 'Update and Generate Receipt' : 'Save and Generate Receipt' }}
+                </button>
+            </div>
+            <a href="{{ route('admin.new-vehicle-sales.index') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </div>
 
@@ -102,8 +118,8 @@
             </div>
         </div>
         <div class="text-left">
-            @if(isset($bookingAdvance) && $bookingAdvance->id)
-            <a href="{{ route('admin.booking-advances.receipt', $bookingAdvance) }}" class="btn btn-info"
+            @if(isset($newVehicleSale) && $newVehicleSale->id)
+            <a href="{{ route('admin.new-vehicle-sales.receipt', $newVehicleSale) }}" class="btn btn-info"
                 target="_blank">
                 <i class="fas fa-print"></i> Generate Receipt
             </a>
@@ -112,488 +128,4 @@
     </div>
 
 </div>
-<style>
-    #customer_results {
-        max-height: 200px;
-        overflow-y: auto;
-        width: 100%;
-    }
-
-    #customer_results .list-group-item {
-        padding: 10px;
-        font-size: 14px;
-    }
-</style>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("customer_search");
-    const customerResults = document.getElementById("customer_results");
-    const customerNameInput = document.getElementById("customer_name");
-    const customerPhoneInput = document.getElementById("customer_phone_no");
-    const customerPanInput = document.getElementById("customer_pan_no");
-    const customerIdInput = document.getElementById("customer_id");
-
-    let debounceTimer;
-    let selectedIndex = -1;
-    let currentResults = [];
-
-    // Event listener for input field
-    searchInput.addEventListener("input", function () {
-        clearTimeout(debounceTimer);
-        const query = searchInput.value.trim();
-
-        if (query.length >= 3) {
-            debounceTimer = setTimeout(() => {
-                fetchCustomers(query);
-            }, 300);
-        } else {
-            customerResults.style.display = "none";
-        }
-    });
-
-    // Function to fetch customers via AJAX
-    function fetchCustomers(query) {
-        fetch(`/admin/customers/search?query=${encodeURIComponent(query)}`, {
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "Accept": "application/json",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                // If no customers found, enable manual input
-                enableManualInput();
-                customerResults.innerHTML = `
-                    <li class="list-group-item text-muted">
-                        No customers found. You can enter details for a new customer below.
-                    </li>`;
-                customerResults.style.display = "block";
-            } else {
-                displayResults(data);
-            }
-        })
-        .catch(error => console.error("Error fetching customers:", error));
-    }
-
-    function enableManualInput() {
-        // Clear customer ID as this will be a new customer
-        customerIdInput.value = '';
-
-        // Enable name input for new customer
-        customerNameInput.removeAttribute('readonly');
-        customerPhoneInput.removeAttribute('readonly');
-        customerPanInput.removeAttribute('readonly');
-        customerNameInput.value = '';
-        // Set values from search if they match a phone pattern
-        const searchValue = searchInput.value.trim();
-        if (/^\d{10}$/.test(searchValue)) {
-            customerPhoneInput.value = searchValue;
-        } else {
-            customerPhoneInput.value = searchValue;
-        }
-    }
-
-    // Function to display autocomplete results
-    function displayResults(customers) {
-        currentResults = customers; // Store current results for Enter key selection
-        selectedIndex = -1; // Reset selection
-        customerResults.innerHTML = "";
-
-        if (customers.length === 0) {
-            customerResults.innerHTML = `<li class="list-group-item text-muted">No customers found</li>`;
-        } else {
-            customers.forEach((customer, index) => {
-                const customerRow = document.createElement("li");
-                customerRow.className = "list-group-item list-group-item-action customer-row";
-
-                // Customer info
-                const customerInfo = document.createElement("div");
-                customerInfo.className = "customer-info";
-                customerInfo.innerHTML = `
-                    <strong>${customer.name}</strong><br>
-                    <small>Phone: ${customer.phone_no} | PAN: ${customer.pan_number}</small>
-                `;
-
-                customerRow.appendChild(customerInfo);
-
-                // Add click event for selecting customer
-                customerRow.addEventListener("click", () => selectCustomer(customer));
-
-                // Add mouseover event to update selection
-                customerRow.addEventListener("mouseover", () => {
-                    selectedIndex = index;
-                    updateSelection(customerResults.getElementsByClassName('customer-row'));
-                });
-
-                customerResults.appendChild(customerRow);
-            });
-        }
-        customerResults.style.display = "block";
-    }
-
-    // Function to handle customer selection with booking
-    function selectCustomerWithBooking(customer, bookingNumber) {
-        // Set customer details
-        searchInput.value = `${customer.phone_no}`;
-        customerIdInput.value = customer.id;
-        customerNameInput.value = customer.name;
-        customerPhoneInput.value = customer.phone_no;
-        customerPanInput.value = customer.pan_number;
-        // Set booking number
-        const bookingNumberInput = document.getElementById('order_booking_number');
-        if (bookingNumberInput) {
-            bookingNumberInput.value = bookingNumber;
-        }
-
-        customerResults.style.display = "none";
-    }
-
-    // Function to handle customer selection without booking
-    function selectCustomer(customer) {
-        searchInput.value = `${customer.phone_no}`;
-        customerIdInput.value = customer.id;
-        customerNameInput.value = customer.name;
-        customerPhoneInput.value = customer.phone_no;
-        customerPanInput.value = customer.pan_number;
-        // Clear booking number if it exists
-        const bookingNumberInput = document.getElementById('order_booking_number');
-        if (bookingNumberInput) {
-            bookingNumberInput.value = '';
-        }
-
-        customerResults.style.display = "none";
-    }
-
-    // Update the styles
-    const style = document.createElement('style');
-    style.textContent = `
-        #customer_results {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .customer-row {
-            padding: 10px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .customer-info {
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .customer-info:hover {
-            background-color: #a11c2d;
-        }
-
-        .booking-numbers {
-            border-top: 1px dashed #dee2e6;
-            margin-top: 5px;
-            padding-top: 5px;
-        }
-
-        .booking-row {
-            padding: 5px 10px;
-            margin: 2px 0;
-            cursor: pointer;
-            color: #0056b3;
-            font-size: 0.9em;
-            border-radius: 3px;
-        }
-
-        .booking-row:hover {
-            background-color: #a11c2d;
-        }
-
-        .booking-row i {
-            color: #6c757d;
-        }
-
-        .customer-row.active {
-            background-color: #a11c2d;
-            border-color: #dee2e6;
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Add keydown event listener for keyboard navigation
-    searchInput.addEventListener('keydown', function(e) {
-        const items = customerResults.getElementsByClassName('customer-row');
-
-        switch(e.key) {
-            case 'ArrowDown':
-                e.preventDefault();
-                if (selectedIndex < items.length - 1) {
-                    selectedIndex++;
-                    updateSelection(items);
-                }
-                break;
-
-            case 'ArrowUp':
-                e.preventDefault();
-                if (selectedIndex > 0) {
-                    selectedIndex--;
-                    updateSelection(items);
-                }
-                break;
-
-            case 'Enter':
-                e.preventDefault();
-                if (selectedIndex >= 0 && selectedIndex < currentResults.length) {
-                    selectCustomer(currentResults[selectedIndex]);
-                }
-                break;
-
-            case 'Escape':
-                customerResults.style.display = 'none';
-                selectedIndex = -1;
-                break;
-        }
-    });
-
-    // Function to update the visual selection
-    function updateSelection(items) {
-        Array.from(items).forEach((item, index) => {
-            if (index === selectedIndex) {
-                item.classList.add('active');
-                // Ensure the selected item is visible in the scroll view
-                item.scrollIntoView({ block: 'nearest' });
-            } else {
-                item.classList.remove('active');
-            }
-        });
-    }
-
-    // Hide results on click outside
-    document.addEventListener("click", function (e) {
-        if (!customerResults.contains(e.target) && e.target !== searchInput) {
-            customerResults.style.display = "none";
-        }
-    });
-});
-</script>
-
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-    function validateSubmitButton() {
-        const balanceDisplay = parseFloat(document.getElementById("balanceDisplay").innerText) || 0;
-        const isValid = balanceDisplay === 0;
-        document.getElementById("saveButton").disabled = !isValid;
-        document.getElementById("saveGenerateButton").disabled = !isValid;
-    }
-        // Define updatePaymentSummary first
-        window.updatePaymentSummary = function() {
-            const totalAmount = parseFloat(document.getElementById("total_amount").value) || 0;
-            const paymentAmounts = document.querySelectorAll("[name^='payments'][name$='[amount]']");
-            let amountPaid = 0;
-            const paymentDetailsContainer = document.getElementById("individualPayments");
-            paymentDetailsContainer.innerHTML = ""; // Clear current displayed payments
-
-            paymentAmounts.forEach(input => {
-                const amount = parseFloat(input.value) || 0;
-                amountPaid += amount;
-
-                const paymentRow = document.createElement("p");
-                const paymentType = input.closest(".row").querySelector("select").value;
-                paymentRow.innerText = `${paymentType.toUpperCase()}: ₹${amount.toFixed(2)}`;
-                paymentDetailsContainer.appendChild(paymentRow);
-            });
-
-            const balance = totalAmount - amountPaid;
-
-            document.getElementById("totalAmountDisplay").innerText = totalAmount.toFixed(2);
-            document.getElementById("amountPaidDisplay").innerText = amountPaid.toFixed(2);
-            document.getElementById("balanceDisplay").innerText = balance.toFixed(2);
-validateSubmitButton();
-        };
-
-        // Add event listener for total amount
-        document.getElementById("total_amount").addEventListener("input", updatePaymentSummary);
-
-        // Ensure the `addPaymentRow` function is globally available
-        window.addPaymentRow = function (payment = {}) {
-            const container = document.getElementById('paymentsContainer');
-            const index = container.children.length;
-
-            // Get all currently selected payment methods
-            const selectedMethods = Array.from(document.querySelectorAll('.payment-type'))
-                .map(select => select.value)
-                .filter(value => value !== '');
-
-            const paymentRow = document.createElement('div');
-            paymentRow.className = 'form-group row payment-row';
-            paymentRow.innerHTML = `
-                <div class="col-md-3">
-                    <select name="payments[${index}][payment_by]" class="form-control payment-type"
-                        onchange="showPaymentFields(this, ${index})" required>
-                        <option value="">Select Payment Method</option>
-                        ${getAvailablePaymentOptions(selectedMethods, payment.payment_by)}
-                    </select>
-                </div>
-                <div id="paymentFields${index}" class="col-md-8"></div>
-                <div class="col-md-1">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="deletePaymentRow(this)">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-            container.appendChild(paymentRow);
-
-            // Show specific fields based on payment method if editing
-            if (payment.payment_by) {
-                window.showPaymentFields(paymentRow.querySelector(".payment-type"), index, payment);
-            }
-        };
-
-        // Function to get available payment options
-        function getAvailablePaymentOptions(selectedMethods, currentValue = '') {
-            const allPaymentMethods = {
-                cash: 'Cash',
-                cheque: 'Cheque',
-                bank_transfer: 'Bank Transfer',
-                card: 'Card Swipe',
-                advance_adjustment: 'Advance Adjustment',
-                discount: 'Discount',
-                credit_individual: 'Credit Individual',
-                credit_institutional: 'Credit Institutional',
-                balance: 'Balance'
-            };
-
-            return Object.entries(allPaymentMethods)
-                .map(([value, label]) => {
-                    const isSelected = value === currentValue;
-                    const isDisabled = !isSelected && selectedMethods.includes(value);
-                    return `<option value="${value}" ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}>${label}</option>`;
-                })
-                .join('');
-        }
-
-        // Function to delete payment row
-        window.deletePaymentRow = function(button) {
-            const row = button.closest('.payment-row');
-            row.remove();
-            updatePaymentSummary();
-        };
-
-        // Ensure the `showPaymentFields` function is globally available
-        window.showPaymentFields = function (select, index, payment = {}) {
-            const paymentType = select.value;
-            const paymentFields = document.getElementById(`paymentFields${index}`);
-            paymentFields.innerHTML = ''; // Clear existing fields
-
-            const currentDate = new Date().toISOString().split('T')[0];
-            const commonFields = `
-                <input type="hidden" name="payments[${index}][payment_date]"
-                    value="${payment.payment_date || currentDate}">
-                <input type="number" step="0.01" name="payments[${index}][amount]" placeholder="Amount"
-                    class="form-control mt-2" value="${payment.amount || ''}" oninput="updatePaymentSummary()" required>
-            `;
-
-            if (paymentType === "cash") {
-                paymentFields.innerHTML += commonFields;
-            } else if (paymentType === "cheque") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][reference_number]" placeholder="Cheque Number"
-                        class="form-control mt-2" value="${payment.reference_number || ''}" required>
-                    <input type="text" name="payments[${index}][bank_name]" placeholder="Bank Name"
-                        class="form-control mt-2" value="${payment.bank_name || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "bank_transfer") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][reference_number]" placeholder="NEFT/IFSC REF No"
-                        class="form-control mt-2" value="${payment.reference_number || ''}" required>
-                    <input type="text" name="payments[${index}][bank_name]" placeholder="Bank Name"
-                        class="form-control mt-2" value="${payment.bank_name || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "card") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][reference_number]" placeholder="Card Transaction ID"
-                        class="form-control mt-2" value="${payment.reference_number || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "advance_adjustment") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][reference_number]" placeholder="GAPL M.R.No."
-                        class="form-control mt-2" value="${payment.reference_number || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "discount") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][approved_by]" placeholder="Approved By"
-                        class="form-control mt-2" value="${payment.approved_by || ''}" required>
-                    <input type="text" name="payments[${index}][discount_note_no]" placeholder="Discount Note No."
-                        class="form-control mt-2" value="${payment.discount_note_no || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "credit_individual") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][approved_by]" placeholder="Approved By"
-                        class="form-control mt-2" value="${payment.approved_by || ''}" required>
-                    <input type="text" name="payments[${index}][approved_note_no]" placeholder="Approved Note No."
-                        class="form-control mt-2" value="${payment.approved_note_no || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "credit_institutional") {
-                paymentFields.innerHTML += `
-                    <input type="text" name="payments[${index}][approved_by]" placeholder="Approved By"
-                        class="form-control mt-2" value="${payment.approved_by || ''}" required>
-                    <input type="text" name="payments[${index}][institution_name]" placeholder="Institution Name"
-                        class="form-control mt-2" value="${payment.institution_name || ''}" required>
-                    <input type="text" name="payments[${index}][credit_instrument]" placeholder="Credit Instrument"
-                        class="form-control mt-2" value="${payment.credit_instrument || ''}" required>
-                    <input type="text" name="payments[${index}][reference_number]" placeholder="Credit Instrument Reference No."
-                        class="form-control mt-2" value="${payment.reference_number || ''}" required>
-                    ${commonFields}
-                `;
-            } else if (paymentType === "balance") {
-                paymentFields.innerHTML += commonFields;
-            }
-
-            updatePaymentSummary();
-        };
-
-        // Prepopulate payments if in edit mode
-        @if (isset($bookingAdvance) && $bookingAdvance->payments)
-            @foreach ($bookingAdvance->payments as $payment)
-                addPaymentRow({
-                    payment_by: @json($payment->payment_by),
-                    payment_date: @json($payment->payment_date),
-                    amount: @json($payment->amount),
-                    reference_number: @json($payment->reference_number),
-                    bank_name: @json($payment->bank_name),
-                    approved_by: @json($payment->approved_by),
-                    discount_note_no: @json($payment->discount_note_no),
-                    approved_note_no: @json($payment->approved_note_no),
-                    institution_name: @json($payment->institution_name),
-                    credit_instrument: @json($payment->credit_instrument)
-                });
-            @endforeach
-        @endif
-
-
-        // Initialize customer data if in edit mode
-        @if(isset($bookingAdvance) && $bookingAdvance->customer)
-            customersData = [@json($bookingAdvance->customer)];
-        @endif
-        // Add default cash payment row
-        if (document.getElementById('paymentsContainer').children.length === 0) {
-                addPaymentRow();
-                setTimeout(() => {
-                    const firstPaymentSelect = document.querySelector('.payment-type');
-                    if (firstPaymentSelect) {
-                        firstPaymentSelect.value = 'cash';
-                        showPaymentFields(firstPaymentSelect, 0);
-                    }
-                }, 0);
-            }
-    });
-</script>
+@include('admin.new-vehicle-sales._scripts')

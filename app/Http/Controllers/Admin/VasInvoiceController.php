@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\NewVehicleSale;
-use App\Models\PaymentNewVehicle;
+use App\Models\VasInvoice;
+use App\Models\PaymentVasInvoice;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use NumberFormatter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
-class NewVehicleSaleController extends Controller
+class VasInvoiceController extends Controller
 {
-  private function validateNewVehicleSale(Request $request)
+  private function validateVasInvoice(Request $request)
   {
     $rules = [
       'customer_id' => 'nullable|exists:customers,id',
@@ -44,11 +44,10 @@ class NewVehicleSaleController extends Controller
 
   public function index(Request $request)
   {
-    validate_permission('new_vehicle_sales.read');
+    validate_permission('vas_invoices.read');
 
-    // Handle search functionality
     $search = $request->input('search');
-    $query = NewVehicleSale::with('customer');
+    $query = VasInvoice::with('customer');
 
     if ($search) {
       $query->where('order_booking_number', 'like', '%' . $search . '%')
@@ -56,33 +55,33 @@ class NewVehicleSaleController extends Controller
         ->orWhereHas('customer', function ($q) use ($search) {
           $q->where('name', 'like', '%' . $search . '%');
         })
-        ->orWhere('sales_exec_name', 'like', '%' . $search . '%')
+        ->orWhere('so_name', 'like', '%' . $search . '%')
         ->orderBy('created_at', 'desc');
     }
 
-    $newVehicleSales = $query->paginate(10);
+    $vasInvoices = $query->paginate(10);
 
-    return view('admin.new-vehicle-sales.index', compact('newVehicleSales', 'search'));
+    return view('admin.vas-invoices.index', compact('vasInvoices', 'search'));
   }
 
   public function create()
   {
-    validate_permission('new_vehicle_sales.create');
+    validate_permission('vas_invoices.create');
 
     $customers = Customer::all();
-    return view('admin.new-vehicle-sales.create', compact('customers'));
+    return view('admin.vas-invoices.create', compact('customers'));
   }
 
   public function store(Request $request)
   {
-    validate_permission('new_vehicle_sales.create');
+    validate_permission('vas_invoices.create');
 
     DB::beginTransaction();
     try {
-      \Log::info('New Vehicle Sale Request:', $request->all());
+      \Log::info('VAS Invoice Request:', $request->all());
 
       // Validate the request
-      $validated = $this->validateNewVehicleSale($request);
+      $validated = $this->validateVasInvoice($request);
       \Log::info('Validation passed');
 
       // Check if we need to create a new customer
@@ -103,33 +102,33 @@ class NewVehicleSaleController extends Controller
         'so_name'
       ]);
 
-      $newVehicleSale = NewVehicleSale::create($data);
+      $vasInvoice = VasInvoice::create($data);
 
       // Process payments
-      $this->processPayments($request, $newVehicleSale);
+      $this->processPayments($request, $vasInvoice);
 
       DB::commit();
 
       if ($request->input('action') === 'save_generate_receipt') {
-        return redirect()->route('admin.new-vehicle-sales.receipt', $newVehicleSale);
+        return redirect()->route('admin.vas-invoices.receipt', $vasInvoice);
       }
 
-      return redirect()->route('admin.new-vehicle-sales.index')
-        ->with('success', 'New Vehicle Sale created successfully!');
+      return redirect()->route('admin.vas-invoices.index')
+        ->with('success', 'VAS Invoice created successfully!');
     } catch (\Exception $e) {
       DB::rollBack();
-      \Log::error('New Vehicle Sale Error:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+      \Log::error('VAS Invoice Error:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
       return redirect()->back()->withInput()
-        ->with('error', 'Error creating New Vehicle Sale: ' . $e->getMessage());
+        ->with('error', 'Error creating VAS Invoice: ' . $e->getMessage());
     }
   }
 
-  private function processPayments(Request $request, NewVehicleSale $newVehicleSale)
+  private function processPayments(Request $request, VasInvoice $vasInvoice)
   {
     $amountPaid = 0;
     foreach ($request->input('payments', []) as $payment) {
       $paymentData = [
-        'new_vehicle_sale_id' => $newVehicleSale->id,
+        'vas_invoice_id' => $vasInvoice->id,
         'payment_by' => $payment['payment_by'],
         'payment_date' => $payment['payment_date'],
         'amount' => $payment['amount'],
@@ -142,35 +141,35 @@ class NewVehicleSaleController extends Controller
         'credit_instrument' => $payment['credit_instrument'] ?? null,
       ];
 
-      PaymentNewVehicle::create($paymentData);
+      PaymentVasInvoice::create($paymentData);
       $amountPaid += $payment['amount'];
     }
 
-    $newVehicleSale->update([
+    $vasInvoice->update([
       'amount_paid' => $amountPaid,
-      'balance' => $newVehicleSale->total_amount - $amountPaid,
+      'balance' => $vasInvoice->total_amount - $amountPaid,
     ]);
   }
 
-  public function edit(NewVehicleSale $newVehicleSale)
+  public function edit(VasInvoice $vasInvoice)
   {
-    validate_permission('new_vehicle_sales.update');
+    validate_permission('vas_invoices.update');
 
     $customers = Customer::all();
-    $newVehicleSale->load(['payments', 'customer']);
-    $balance = $newVehicleSale->total_amount - $newVehicleSale->amount_paid;
+    $vasInvoice->load(['payments', 'customer']);
+    $balance = $vasInvoice->total_amount - $vasInvoice->amount_paid;
 
-    return view('admin.new-vehicle-sales.edit', compact('newVehicleSale', 'customers', 'balance'));
+    return view('admin.vas-invoices.edit', compact('vasInvoice', 'customers', 'balance'));
   }
 
-  public function update(Request $request, NewVehicleSale $newVehicleSale)
+  public function update(Request $request, VasInvoice $vasInvoice)
   {
-    validate_permission('new_vehicle_sales.update');
+    validate_permission('vas_invoices.update');
 
     DB::beginTransaction();
     try {
       // Validate the request
-      $validated = $this->validateNewVehicleSale($request);
+      $validated = $this->validateVasInvoice($request);
 
       $data = $request->only([
         'customer_id',
@@ -180,45 +179,46 @@ class NewVehicleSaleController extends Controller
         'so_name'
       ]);
 
-      $newVehicleSale->update($data);
+      $vasInvoice->update($data);
 
       // Delete existing payments
-      $newVehicleSale->payments()->delete();
+      $vasInvoice->payments()->delete();
 
       // Process new payments using the shared method
-      $this->processPayments($request, $newVehicleSale);
+      $this->processPayments($request, $vasInvoice);
 
       DB::commit();
 
       if ($request->input('action') === 'save_generate_receipt') {
-        return redirect()->route('admin.new-vehicle-sales.receipt', $newVehicleSale);
+        return redirect()->route('admin.vas-invoices.receipt', $vasInvoice);
       }
 
-      return redirect()->route('admin.new-vehicle-sales.index')
-        ->with('success', 'New Vehicle Sale updated successfully!');
+      return redirect()->route('admin.vas-invoices.index')
+        ->with('success', 'VAS Invoice updated successfully!');
     } catch (\Exception $e) {
       DB::rollBack();
       return redirect()->back()->withInput()
-        ->with('error', 'Error updating New Vehicle Sale: ' . $e->getMessage());
+        ->with('error', 'Error updating VAS Invoice: ' . $e->getMessage());
     }
   }
 
-  public function destroy(NewVehicleSale $newVehicleSale)
+  public function destroy(VasInvoice $vasInvoice)
   {
-    validate_permission('new_vehicle_sales.delete');
+    validate_permission('vas_invoices.delete');
 
-    $newVehicleSale->delete();
-    return redirect()->route('admin.new-vehicle-sales.index')->with('success', 'New Vehicle Sale deleted successfully!');
+    $vasInvoice->delete();
+    return redirect()->route('admin.vas-invoices.index')
+      ->with('success', 'VAS Invoice deleted successfully!');
   }
 
-  public function receipt(NewVehicleSale $newVehicleSale)
+  public function receipt(VasInvoice $vasInvoice)
   {
-    $newVehicleSale->load(['customer', 'payments']);
+    $vasInvoice->load(['customer', 'payments']);
 
     // Convert amount to words
     $f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
-    $amountInWords = $f->format($newVehicleSale->amount_paid);
+    $amountInWords = $f->format($vasInvoice->amount_paid);
 
-    return view('admin.new-vehicle-sales.receipt', compact('newVehicleSale', 'amountInWords'));
+    return view('admin.vas-invoices.receipt', compact('vasInvoice', 'amountInWords'));
   }
 }

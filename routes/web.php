@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\BookingAdvanceController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\NewVehicleSaleController;
 use App\Http\Controllers\Admin\PaymentMainController;
+use App\Http\Controllers\Admin\VasInvoiceController;
+use App\Http\Controllers\Admin\JobAdvanceController;
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard.index');
@@ -41,6 +43,15 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/admin/customers/store', [CustomerController::class, 'store'])->name('admin.customers.store');
+});
+
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('vas-invoices', VasInvoiceController::class);
+    Route::get('vas-invoices/{vasInvoice}/receipt', [VasInvoiceController::class, 'receipt'])
+        ->name('vas-invoices.receipt');
+    Route::resource('job-advances', JobAdvanceController::class);
+    Route::get('job-advances/{jobAdvance}/receipt', [JobAdvanceController::class, 'receipt'])
+        ->name('job-advances.receipt');
 });
 
 require __DIR__ . '/auth.php';

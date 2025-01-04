@@ -1,48 +1,43 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Booking Advance')
+@section('title', 'Edit New Vehicle Sale')
 
 @section('main')
 <div class="card mt-3">
     <div class="card-header">
-        <h3 class="card-title">Edit Booking Advance</h3>
+        <h3 class="card-title">Edit New Vehicle Sale</h3>
     </div>
     <div class="card-body">
-        <form action="{{ route('admin.booking-advances.update', $bookingAdvance) }}" method="POST">
+        <form action="{{ route('admin.new-vehicle-sales.update', $newVehicleSale) }}" method="POST" id="sale-form">
             @csrf
             @method('PUT')
-
-            @include('admin.booking-advances._form')
-
-            <button type="submit" class="btn btn-info" id="saveGenerateButton" name="action"
-                value="save_generate_receipt" disabled>
-                {{ isset($bookingAdvance) ? 'Update and Generate Receipt' : 'Save and Generate Receipt' }}
-            </button>
+            @include('admin.new-vehicle-sales._form')
         </form>
     </div>
 </div>
-<script>
-    document.getElementById('booking-form').addEventListener('submit', function (event) {
-    event.preventDefault(); // Prevent default form submission
-    const form = event.target;
 
-    fetch(form.action, {
-        method: form.method,
-        body: new FormData(form),
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.open(data.receipt_url, '_blank');
-            window.location.href = data.index_url;
-        } else {
-            alert('There was an error processing your request.');
-        }
-    })
-    .catch(error => console.error('Error:', error));
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Initialize payment rows for existing payments
+    @if(isset($newVehicleSale) && $newVehicleSale->payments)
+        @foreach($newVehicleSale->payments as $payment)
+            addPaymentRow({
+                payment_by: @json($payment->payment_by),
+                payment_date: @json($payment->payment_date),
+                amount: @json($payment->amount),
+                reference_number: @json($payment->reference_number),
+                bank_name: @json($payment->bank_name),
+                approved_by: @json($payment->approved_by),
+                discount_note_no: @json($payment->discount_note_no),
+                approved_note_no: @json($payment->approved_note_no),
+                institution_name: @json($payment->institution_name),
+                credit_instrument: @json($payment->credit_instrument)
+            });
+        @endforeach
+    @endif
+
+    // Update payment summary
+    updatePaymentSummary();
 });
 </script>
 @endsection
