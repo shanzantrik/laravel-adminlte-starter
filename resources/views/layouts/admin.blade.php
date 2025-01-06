@@ -178,7 +178,7 @@
                                         @endpermission
 
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.new-vehicle-sales.index') }}"
+                                            <a href="{{ route('admin.new-vehicle-sales.create') }}"
                                                 class="nav-link {{ request()->routeIs('admin.new-vehicle-sales.*') ? 'active' : '' }}">
                                                 <i class="nav-icon fas fa-car"></i>
                                                 <p>New Vehicle Sales</p>
@@ -186,7 +186,7 @@
                                         </li>
 
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.vas-invoices.index') }}"
+                                            <a href="{{ route('admin.vas-invoices.create') }}"
                                                 class="nav-link {{ request()->routeIs('admin.vas-invoices.*') ? 'active' : '' }}">
                                                 <i class="fa fa-file nav-icon"></i>
                                                 <p>{{ __('VAS Invoice') }}</p>
@@ -205,21 +205,21 @@
                                     </a>
                                     <ul class="nav nav-treeview">
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.job-advances.index') }}"
+                                            <a href="{{ route('admin.job-advances.create') }}"
                                                 class="nav-link {{ request()->routeIs('admin.job-advances.*') ? 'active' : '' }}">
                                                 <i class="fas fa-tools nav-icon"></i>
                                                 <p>{{ __('Job Advance') }}</p>
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.service-bills.index') }}"
+                                            <a href="{{ route('admin.service-bills.create') }}"
                                                 class="nav-link {{ request()->routeIs('admin.service-bills.*') ? 'active' : '' }}">
                                                 <i class="fas fa-file-invoice-dollar nav-icon"></i>
                                                 <p>{{ __('Service Bill') }}</p>
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.counter-sales.index') }}"
+                                            <a href="{{ route('admin.counter-sales.create') }}"
                                                 class="nav-link {{ request()->routeIs('admin.counter-sales.*') ? 'active' : '' }}">
                                                 <i class="fas fa-cash-register nav-icon"></i>
                                                 <p>{{ __('Counter Sale') }}</p>
@@ -239,14 +239,14 @@
                                     </a>
                                     <ul class="nav nav-treeview">
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.used-car-advances.index') }}"
+                                            <a href="{{ route('admin.used-car-advances.create') }}"
                                                 class="nav-link {{ request()->routeIs('admin.used-car-advances.*') ? 'active' : '' }}">
                                                 <i class="fas fa-tools nav-icon"></i>
                                                 <p>{{ __('Advance') }}</p>
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.used-car-sales.index') }}"
+                                            <a href="{{ route('admin.used-car-sales.create') }}"
                                                 class="nav-link {{ request()->routeIs('admin.used-car-sales.*') ? 'active' : '' }}">
                                                 <i class="fa fa-car nav-icon"></i>
                                                 <p>{{ __('Used Car Sales') }}</p>
@@ -266,14 +266,14 @@
                                     </a>
                                     <ul class="nav nav-treeview">
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.insurance-advances.index') }}"
+                                            <a href="{{ route('admin.insurance-advances.create') }}"
                                                 class="nav-link {{ request()->routeIs('admin.insurance-advances.*') ? 'active' : '' }}">
                                                 <i class="fas fa-money-bill-wave nav-icon"></i>
                                                 <p>{{ __('Advance') }}</p>
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{ route('admin.insurance-policies.index')}}"
+                                            <a href="{{ route('admin.insurance-policies.create')}}"
                                                 class="nav-link {{ request()->routeIs('admin.insurance-policies.*') ? 'active' : '' }}">
                                                 <i class="fas fa-file-invoice-dollar nav-icon"></i>
                                                 <p>{{ __('Policy Issued') }}</p>
@@ -282,7 +282,7 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.extended-warranties.index') }}"
+                                    <a href="{{ route('admin.extended-warranties.create') }}"
                                         class="nav-link {{ request()->routeIs('admin.extended-warranties.*') ? 'active' : '' }}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>{{ __('Extended Warranty') }}</p>
