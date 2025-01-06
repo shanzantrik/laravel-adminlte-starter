@@ -282,7 +282,8 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link">
+                                    <a href="{{ route('admin.extended-warranties.index') }}"
+                                        class="nav-link {{ request()->routeIs('admin.extended-warranties.*') ? 'active' : '' }}">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>{{ __('Extended Warranty') }}</p>
                                     </a>

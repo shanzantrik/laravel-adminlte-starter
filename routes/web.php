@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\UsedCarAdvanceController;
 use App\Http\Controllers\Admin\UsedCarSaleController;
 use App\Http\Controllers\Admin\InsuranceAdvanceController;
 use App\Http\Controllers\Admin\InsurancePolicyController;
+use App\Http\Controllers\Admin\ExtendedWarrantyController;
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard.index');
@@ -76,6 +77,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::resource('insurance-policies', InsurancePolicyController::class);
     Route::get('insurance-policies/{insurancePolicy}/receipt', [InsurancePolicyController::class, 'receipt'])
         ->name('insurance-policies.receipt');
+    Route::resource('extended-warranties', ExtendedWarrantyController::class);
+    Route::get('extended-warranties/{extendedWarranty}/receipt', [ExtendedWarrantyController::class, 'receipt'])
+        ->name('extended-warranties.receipt');
 });
 
 require __DIR__ . '/auth.php';
