@@ -12,6 +12,12 @@ use App\Http\Controllers\Admin\NewVehicleSaleController;
 use App\Http\Controllers\Admin\PaymentMainController;
 use App\Http\Controllers\Admin\VasInvoiceController;
 use App\Http\Controllers\Admin\JobAdvanceController;
+use App\Http\Controllers\Admin\ServiceBillController;
+use App\Http\Controllers\Admin\CounterSaleController;
+use App\Http\Controllers\Admin\UsedCarAdvanceController;
+use App\Http\Controllers\Admin\UsedCarSaleController;
+use App\Http\Controllers\Admin\InsuranceAdvanceController;
+use App\Http\Controllers\Admin\InsurancePolicyController;
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard.index');
@@ -52,6 +58,24 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::resource('job-advances', JobAdvanceController::class);
     Route::get('job-advances/{jobAdvance}/receipt', [JobAdvanceController::class, 'receipt'])
         ->name('job-advances.receipt');
+    Route::resource('service-bills', ServiceBillController::class);
+    Route::get('service-bills/{serviceBill}/receipt', [ServiceBillController::class, 'receipt'])
+        ->name('service-bills.receipt');
+    Route::resource('counter-sales', CounterSaleController::class);
+    Route::get('counter-sales/{counterSale}/receipt', [CounterSaleController::class, 'receipt'])
+        ->name('counter-sales.receipt');
+    Route::resource('used-car-advances', UsedCarAdvanceController::class);
+    Route::get('used-car-advances/{usedCarAdvance}/receipt', [UsedCarAdvanceController::class, 'receipt'])
+        ->name('used-car-advances.receipt');
+    Route::resource('used-car-sales', UsedCarSaleController::class);
+    Route::get('used-car-sales/{usedCarSale}/receipt', [UsedCarSaleController::class, 'receipt'])
+        ->name('used-car-sales.receipt');
+    Route::resource('insurance-advances', InsuranceAdvanceController::class);
+    Route::get('insurance-advances/{insuranceAdvance}/receipt', [InsuranceAdvanceController::class, 'receipt'])
+        ->name('insurance-advances.receipt');
+    Route::resource('insurance-policies', InsurancePolicyController::class);
+    Route::get('insurance-policies/{insurancePolicy}/receipt', [InsurancePolicyController::class, 'receipt'])
+        ->name('insurance-policies.receipt');
 });
 
 require __DIR__ . '/auth.php';

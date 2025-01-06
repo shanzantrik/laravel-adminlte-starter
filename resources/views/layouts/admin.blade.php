@@ -212,21 +212,24 @@
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="#" class="nav-link">
+                                            <a href="{{ route('admin.service-bills.index') }}"
+                                                class="nav-link {{ request()->routeIs('admin.service-bills.*') ? 'active' : '' }}">
                                                 <i class="fas fa-file-invoice-dollar nav-icon"></i>
                                                 <p>{{ __('Service Bill') }}</p>
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="#" class="nav-link">
+                                            <a href="{{ route('admin.counter-sales.index') }}"
+                                                class="nav-link {{ request()->routeIs('admin.counter-sales.*') ? 'active' : '' }}">
                                                 <i class="fas fa-cash-register nav-icon"></i>
-                                                <p>{{ __('Counter Sales') }}</p>
+                                                <p>{{ __('Counter Sale') }}</p>
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
                                 <!-- Used Car Dropdown -->
-                                <li class="nav-item has-treeview">
+                                <li
+                                    class="nav-item has-treeview {{ request()->routeIs('admin.used-car-*') ? 'menu-open' : '' }}">
                                     <a href="#" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
@@ -236,13 +239,15 @@
                                     </a>
                                     <ul class="nav nav-treeview">
                                         <li class="nav-item">
-                                            <a href="#" class="nav-link">
+                                            <a href="{{ route('admin.used-car-advances.index') }}"
+                                                class="nav-link {{ request()->routeIs('admin.used-car-advances.*') ? 'active' : '' }}">
                                                 <i class="fas fa-tools nav-icon"></i>
                                                 <p>{{ __('Advance') }}</p>
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="#" class="nav-link">
+                                            <a href="{{ route('admin.used-car-sales.index') }}"
+                                                class="nav-link {{ request()->routeIs('admin.used-car-sales.*') ? 'active' : '' }}">
                                                 <i class="fa fa-car nav-icon"></i>
                                                 <p>{{ __('Used Car Sales') }}</p>
                                             </a>
@@ -250,7 +255,8 @@
                                     </ul>
                                 </li>
                                 <!-- Insurance Dropdown -->
-                                <li class="nav-item has-treeview">
+                                <li
+                                    class="nav-item has-treeview {{ request()->routeIs('admin.insurance-*') ? 'menu-open' : '' }}">
                                     <a href="#" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
@@ -260,13 +266,15 @@
                                     </a>
                                     <ul class="nav nav-treeview">
                                         <li class="nav-item">
-                                            <a href="#" class="nav-link">
-                                                <i class="fas fa-tools nav-icon"></i>
+                                            <a href="{{ route('admin.insurance-advances.index') }}"
+                                                class="nav-link {{ request()->routeIs('admin.insurance-advances.*') ? 'active' : '' }}">
+                                                <i class="fas fa-money-bill-wave nav-icon"></i>
                                                 <p>{{ __('Advance') }}</p>
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="#" class="nav-link">
+                                            <a href="{{ route('admin.insurance-policies.index')}}"
+                                                class="nav-link {{ request()->routeIs('admin.insurance-policies.*') ? 'active' : '' }}">
                                                 <i class="fas fa-file-invoice-dollar nav-icon"></i>
                                                 <p>{{ __('Policy Issued') }}</p>
                                             </a>
